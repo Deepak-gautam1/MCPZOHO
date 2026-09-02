@@ -1,0 +1,9 @@
+# Exported Deluge source is proprietary business logic — keep it local.
+# Remove these lines if you deliberately want it version-controlled.
+*.ds
+*.dg
+functions/
+forms/
+schedules/
+!CLAUDE.md
+!.gitignore
