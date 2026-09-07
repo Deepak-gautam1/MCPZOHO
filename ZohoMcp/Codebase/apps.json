@@ -1,0 +1,69 @@
+{
+  "_comment": [
+    "Maps each .ds export to its Zoho Creator link name. A link name cannot be derived",
+    "from an export - it is fixed when the app is created and often differs arbitrarily",
+    "from the display name ('Peets Coffee Rewards' -> 'test-peets-new') - so this file is",
+    "the only place the mapping can live. codebase.js works without it, reporting",
+    "linkName as null. Verified against the live account on 03-Sep-2026.",
+    "",
+    "linkName is the REST form, hyphenated - it is what the zoho_creator_* tools take as",
+    "appLinkName. Deluge cross-app references use the same name with hyphens replaced by",
+    "underscores (test-peets-new -> test_peets_new), since hyphens are not valid in an",
+    "identifier; codebase.js derives that form itself, so do not store it here.",
+    "",
+    "externalApps lists apps that the exported Deluge calls into but which are NOT in",
+    "this folder, so a cross-app call can still be named rather than reported as unknown."
+  ],
+  "exports": {
+    "Peets_Coffee_Rewards.ds": {
+      "linkName": "test-peets-new",
+      "owner": "rtbidigitalassets_americanafood",
+      "note": "Peet's hub: customers, points ledger, cart/order, mobile API gateway."
+    },
+    "Peets_Product_Catalogue.ds": {
+      "linkName": "copy-of-product-catalogue",
+      "owner": "rtbidigitalassets_americanafood",
+      "note": "Peet's catalogue: products, modifiers, price lists."
+    },
+    "Peets_Restaurant_Management.ds": {
+      "linkName": "peets-restaurant-management",
+      "owner": "rtbidigitalassets_americanafood",
+      "note": "Peet's stores, areas, delivery polygons."
+    },
+    "Krispy_Kreme.ds": {
+      "linkName": "krispy-kreme",
+      "owner": "rtbidigitalassets_americanafood",
+      "note": "Krispy Kreme hub - a fork of the Peet's app, frozen before the _V2 work."
+    },
+    "Product_Catalogue.ds": {
+      "linkName": "copy-of-product-catalogue-management",
+      "owner": "rtbidigitalassets_americanafood",
+      "note": "Krispy Kreme's catalogue, despite the unprefixed display name."
+    },
+    "Restaurant_Management.ds": {
+      "linkName": "restaurant-management",
+      "owner": "rtbidigitalassets_americanafood",
+      "note": "Krispy Kreme's restaurant app, despite the unprefixed display name."
+    },
+    "Global_Configuration.ds": {
+      "linkName": "global-configuration",
+      "owner": "rtbidigitalassets_americanafood",
+      "note": "Markets, currency and nationality master data."
+    },
+    "Loyalty_Engine_Handler.ds": {
+      "linkName": "loyalty-engine-handler",
+      "owner": "rtbidigitalassets_americanafood",
+      "note": "Brand router: dispatches loyalty calls to a Peet's app or to Krispy Kreme."
+    }
+  },
+  "externalApps": {
+    "peets-coffee1": {
+      "application": "Peet's Coffee",
+      "note": "Live app, NOT exported here. loyaltyEngineExecutionCall routes brand 1 to it, so the Peet's loyalty entry point does not run the Peets_Coffee_Rewards (test-peets-new) source in this folder. Export it before trusting any brand-1 trace."
+    },
+    "peets-coffee": {
+      "application": "Old - Peets Coffee - Demo",
+      "note": "Live app, not exported. Named as a demo//old copy."
+    }
+  }
+}

@@ -1,0 +1,5380 @@
+/*
+ * Author       : rtbidigitalassets_americanafood
+ * Generated on : 27-Aug-2026 09:25:58
+ * Version      : 1.0
+ */
+ application "Restaurant Management"
+ {
+ 	date format = "dd-MMM-yyyy"
+ 	time zone = "Asia/Dubai"
+ 	time format = "24-hr"
+
+ 	forms
+	{
+		form Amenities
+		{
+			success message = "Store Amenity Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Amenity_Number
+			(
+				type = number
+				displayname = "Amenity Number"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Amenity_Type
+			(
+    			type = text
+				displayname = "Amenity Type"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Icon
+			(
+    			type = image
+				source  = file
+				aspect ratio = original
+				camera = primary
+				show gallery = true
+				switch camera = true
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form App_Icons
+		{
+			displayname = "App Icons"
+			success message = "App Icon Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Icon_Type
+			(
+				type = number
+				displayname = "Icon Type"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Name
+			(
+    			type = text
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Icon
+			(
+    			type = image
+				source  = file
+				aspect ratio = original
+				camera = primary
+				show gallery = true
+				switch camera = true
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Area
+		{
+			success message = "Area Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Market
+			(
+				type = picklist	
+				values  = copy_of_product_catalogue_management.Market.ID
+    			displayformat = [Name]
+				sortorder = ascending
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			must have unique Area_Name
+			(
+    			type = text
+				displayname = "Area Name"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Code
+			(
+    			type = text
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Property_Type
+		{
+			displayname = "Asset"
+			success message = "Restaurent Type Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			must have unique Property_Type
+			(
+    			type = text
+				displayname = "Asset Type"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Authorization_Popup
+		{
+			displayname = "Authorization Popup"
+			success message = "Data Added Successfully!"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Username
+			(
+    			type = text
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Pass_Key
+			(
+    			type = text
+				displayname = "Pass Key"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Upload_Delivery_Coordinates
+		{
+			displayname = "Delivery Coordinates"
+			success message = "Data Added Successfully!"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			unique R_id
+			(
+    			type = text
+				displayname = "Restaurant Id"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Restaurant_Name
+			(
+    			type = text
+				displayname = "Restaurant Name"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Store
+			(
+    			type = text
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			must have Location_Name
+			(
+    			type = text
+				displayname = "Location Name"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			must have Coordinates_File
+			(
+    			type = upload file
+				displayname = "Coordinates File"
+				browse = local_drive
+    			description
+    			[
+    				type = help_text
+    			 	message = "Please choose csv file only"
+    			]
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Delivery_Coordinates
+			(
+    			type = textarea
+				displayname = "Delivery Coordinates"
+				height = 100px
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			isActive
+			(
+    			type = checkbox
+				initial value = false
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Display_Flow_Image
+		{
+			displayname = "Display Flow Image"
+			success message = "Display Flow Image Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			plain
+			(
+    			type = plaintext
+				value = "<div><img width=\"100%\" height=\"100%\"/> <br /></div>"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Items_list
+		{
+			displayname = "Exclude"
+			success message = "Data Added Successfully!"
+			Details
+			(
+				type = section
+				visibility = true
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Market_Lookup
+			(
+				type = picklist	
+				displayname = "Market"
+				values  = copy_of_product_catalogue_management.Market.ID
+    			displayformat = [Name]
+				sortorder = ascending
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			must have Restaurant_Name
+			(
+				type = picklist	
+				displayname = "Restaurant Name"
+				values  = New_Restaurant[Brand_Lookup.ID == input.Brand_Lookup].ID
+    			displayformat = [Restaurant_Name]
+				sortorder = ascending
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			must have Status
+			(
+				type = radiobuttons
+				displayname = "Product Status"
+				maxchar = 100
+				values = {"Permanently Unavailable","Remove from Active Sales"}
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Brand_Lookup
+			(
+				type = picklist	
+				displayname = "Brand"
+				values  = copy_of_product_catalogue_management.Brand[Market_Lookup.ID == input.Market_Lookup].ID
+    			displayformat = [Name]
+				sortorder = ascending
+	 			row = 1
+	 			column = 2   
+				width = medium
+			)
+			must have Items_to_be_exclude
+			(
+				type = list	
+				displayname = "Select Items"
+				values  = copy_of_product_catalogue_management.Request_Product.ID
+    			displayformat = [Name]
+				sortorder = ascending
+				height = 60px
+	 			row = 1
+	 			column = 2   
+				width = medium
+			)
+			Exclusion_Periods
+			(
+				type = section
+				displayname = "Exclusion Period"
+				visibility = true
+	 			row = 2
+	 			column = 0   
+				width = medium
+			)
+			from_date
+			(
+    			type = date
+				displayname = "From"
+				alloweddays = 0,1,2,3,4,5,6
+	 			row = 2
+	 			column = 1   
+				width = medium
+			)
+			to_date
+			(
+    			type = date
+				displayname = "To"
+				alloweddays = 0,1,2,3,4,5,6
+	 			row = 2
+	 			column = 2   
+				width = medium
+			)
+			Section
+			(
+				type = section
+	 			row = 3
+	 			column = 0   
+				width = medium
+			)
+			RecStatus
+			(
+    			type = checkbox
+				displayname = "Record Status"
+				initial value = true
+				private = true
+	 			row = 3
+	 			column = 1   
+				width = medium
+			)
+			UpdatedBy
+			(
+    			type = text
+	 			row = 3
+	 			column = 1   
+				width = medium
+			)
+			UpdatedOn
+			(
+    			type = text
+	 			row = 3
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Facilities
+		{
+			success message = "Facility Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Facility_Number
+			(
+				type = number
+				displayname = "Facility Number"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Facility_Type
+			(
+    			type = text
+				displayname = "Facility Type"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Activity
+			(
+    			type = checkbox
+				displayname = "Activity Status"
+				initial value = false
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Flow_Diagram
+		{
+			displayname = "Flow Diagram"
+			success message = "Flow Diagram Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Flow_Image
+			(
+    			type = image
+				displayname = "Flow Image"
+				source  = file
+				aspect ratio = original
+				camera = primary
+				show gallery = true
+				switch camera = true
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Key_Generater
+		{
+			displayname = "Key Generater"
+			success message = "Data Added Successfully!"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Restaurant_Name
+			(
+				type = picklist	
+				displayname = "Restaurant Name"
+				values  = New_Restaurant.ID
+    			displayformat = [Restaurant_Name]
+				sortorder = ascending
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			User_Name
+			(
+    			type = text
+				displayname = "User Name"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Auth_Key
+			(
+    			type = text
+				displayname = "Auth Key"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form New_Restaurant
+		{
+			displayname = "New"
+			success message = "Restaurant Added Successfully"
+			Market_Channel
+			(
+				type = section
+				displayname = "Market & Channel"
+				visibility = true
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Market_Lookup
+			(
+				type = picklist	
+				displayname = "Market"
+				values  = copy_of_product_catalogue_management.Market.ID
+    			displayformat = [Name]
+				sortorder = ascending
+	 			row = 1
+	 			column = 1   
+				width = small
+			)
+			Brand_Lookup
+			(
+				type = picklist	
+				displayname = "Brand"
+				values  = copy_of_product_catalogue_management.Brand[Market_Lookup.ID == input.Market_Lookup].ID
+    			displayformat = [Name]
+				sortorder = ascending
+	 			row = 1
+	 			column = 1   
+				width = small
+			)
+			Channel
+			(
+				type = picklist	
+				values  = copy_of_product_catalogue_management.Channel.ID
+    			displayformat = [Channel]
+				sortorder = ascending
+	 			row = 1
+	 			column = 1   
+				width = small
+			)
+			Area_Lookup
+			(
+				type = picklist	
+				displayname = "Area"
+				values  = Area[Market.ID == input.Market_Lookup].ID
+    			displayformat = [Area_Name]
+				sortorder = ascending
+	 			row = 1
+	 			column = 2   
+				width = small
+			)
+			Loyalty_Reference
+			(
+				type = picklist	
+				displayname = "Loyalty Reference"
+				values  = krispy_kreme.Stores.ID
+    			bidirectional = Restaurant_Management
+    			displayformat = [ID]
+	 			row = 1
+	 			column = 2   
+				width = small
+			)
+			Section3
+			(
+				type = section
+				displayname = "Restaurant "
+				visibility = true
+	 			row = 2
+	 			column = 0   
+				width = medium
+			)
+			Restaurant_Name
+			(
+    			type = text
+				displayname = "Restaurant Name"
+	 			row = 2
+	 			column = 1   
+				width = medium
+			)
+			must have unique Store_ID
+			(
+    			type = text
+				displayname = "Store ID"
+	 			row = 2
+	 			column = 1   
+				width = medium
+			)
+			Store_Type1
+			(
+				type = picklist	
+				displayname = "Store Category"
+				values  = Store_Category.ID
+    			displayformat = [Category_Name]
+				sortorder = ascending
+	 			row = 2
+	 			column = 1   
+				width = medium
+			)
+			Home_Image
+			(
+    			type = image
+				displayname = "Image"
+				compression = true
+				source  = file
+				aspect ratio = original
+				camera = primary
+				preview duration = 0
+				show gallery = true
+				switch camera = true
+	 			row = 2
+	 			column = 1   
+				width = medium
+			)
+			Facilities
+			(
+				type = list	
+				values  = Facilities.ID
+    			displayformat = [Facility_Type]
+				sortorder = ascending
+				height = 60px
+	 			row = 2
+	 			column = 1   
+				width = medium
+			)
+			Store_Name
+			(
+    			type = text
+				displayname = "Store Name"
+	 			row = 2
+	 			column = 2   
+				width = medium
+			)
+			Restaurant_Code
+			(
+    			type = text
+				displayname = "Restaurant Code"
+	 			row = 2
+	 			column = 2   
+				width = medium
+			)
+			Property_Type_Lookup
+			(
+				type = picklist	
+				displayname = "Property Type"
+				values  = Property_Type.ID
+    			displayformat = [Property_Type]
+				allow new entries
+				[
+					displayname = "Add New"
+				]
+				sortorder = ascending
+	 			row = 2
+	 			column = 2   
+				width = medium
+			)
+			isActive
+			(
+    			type = checkbox
+				initial value = true
+	 			row = 2
+	 			column = 2   
+				width = medium
+			)
+			Details
+			(
+				type = section
+				visibility = true
+	 			row = 3
+	 			column = 0   
+				width = medium
+			)
+			unique Lat
+			(
+    			type = text
+				displayname = "Latitude"
+	 			row = 3
+	 			column = 1   
+				width = medium
+			)
+			Google_Location
+			(
+    			type = url
+				displayname = "Google Location"
+	 			row = 3
+	 			column = 1   
+				width = medium
+			)
+			Phone_Number
+			(
+    			type = phonenumber
+				displayname = "Phone"
+    			allowedcountries={ae,sa,lb,ma,om,qa,bh,eg,iq,jo,kz,kw}
+    			defaultcountry="ae"
+	 			row = 3
+	 			column = 1   
+				width = medium
+				personal data = true
+			)
+			Rating
+			(
+				type = number
+	 			row = 3
+	 			column = 1   
+				width = medium
+			)
+			unique Long
+			(
+    			type = text
+				displayname = "Longitude"
+	 			row = 3
+	 			column = 2   
+				width = medium
+			)
+			Address
+			(
+    			type = address
+     			capture_coordinates = true
+     			adjust_using_map = false
+     			address_line_1
+     			(
+	     			  type = address_line_1
+	     			  displayname = "Address Line 1"
+     			) 
+     			address_line_2
+     			(
+	     			  type = address_line_2
+	     			  displayname = "Address Line 2"
+	     			 visibility = false
+     			) 
+     			district_city
+     			(
+	     			  type = district_city
+	     			  displayname = "City / District"
+     			) 
+     			state_province
+     			(
+	     			  type = state_province
+	     			  displayname = "State / Province"
+     			) 
+     			postal_Code
+     			(
+	     			  type = postal_Code
+	     			  displayname = "Postal Code"
+     			) 
+     			country
+     			(
+	     			  type = country
+	     			  displayname = "Country"
+     			) 
+     			latitude
+     			(
+	     			  type = latitude
+	     			  displayname = "latitude"
+	     			 visibility = false
+     			) 
+     			longitude
+     			(
+	     			  type = longitude
+	     			  displayname = "longitude"
+	     			 visibility = false
+     			) 
+	 			row = 3
+	 			column = 2   
+				width = medium
+				personal data = true
+			)
+			Store_Opening_Date
+			(
+    			type = date
+				displayname = "Open Date"
+				alloweddays = 0,1,2,3,4,5,6
+	 			row = 3
+	 			column = 2   
+				width = medium
+			)
+			Image_Dimension
+			(
+    			type = text
+				displayname = "Image Dimension"
+	 			row = 3
+	 			column = 2   
+				width = medium
+			)
+			Operating_Hourse
+			(
+				type = grid
+				displayname = "Operating Hours"
+				Days
+				(
+					type = list	
+					values = {"a"}
+					sortorder = ascending
+					height = 60px
+					width = medium
+				)
+				Opening_Hrs
+				(
+    				type = time
+					displayname = "Opening Time"
+					timedisplayoptions = "hh:mm:ss" 
+					width = medium
+				)
+				Closing_Hourse
+				(
+    				type = time
+					displayname = "Closing Time"
+					timedisplayoptions = "hh:mm:ss" 
+					width = medium
+				)
+	 			row = 4
+	 			column = 1   
+				width = medium
+			)
+			Amenities
+			(
+				type = section
+				visibility = true
+	 			row = 5
+	 			column = 0   
+				width = medium
+			)
+			Amenities1
+			(
+				type = checkboxes	
+				displayname = "Amenities"
+				values  = Amenities.ID
+    			displayformat = [Amenity_Type]
+				searchable = true
+				sortorder = ascending
+	 			row = 5
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Serving_Coordinates
+		{
+			displayname = "Serving Coordinates"
+			success message = "Coordinate Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			File_Upload
+			(
+    			type = upload file
+				displayname = "Cordinates File"
+				browse = local_drive
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Name
+			(
+    			type = text
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Description
+			(
+    			type = textarea
+				height = 100px
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Coordinates_JSON
+			(
+    			type = textarea
+				displayname = "Coordinates JSON"
+				height = 100px
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Store_Category
+		{
+			displayname = "Store Category"
+			success message = "Data Added Successfully!"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Brand
+			(
+				type = picklist	
+				values  = copy_of_product_catalogue_management.Brand.ID
+    			displayformat = [Name]
+				sortorder = ascending
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Category_Number
+			(
+				type = number
+				displayname = "Category Number"
+				maxchar = 1
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Category_Name
+			(
+    			type = text
+				displayname = "Category Name"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form UploadOpeningClosingTime
+		{
+			success message = "Data Added Successfully!"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			must have File_upload
+			(
+    			type = upload file
+				displayname = "File upload"
+				browse = local_drive
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			must have rdDays
+			(
+				type = radiobuttons
+				displayname = "Days"
+				maxchar = 100
+				values = {"Weekdays(Mon-Fri)","Weekend(Sat-Sun)"}
+				layout = 2
+    			description
+    			[
+    				type = tooltip
+    			 	message = "Weekdays (Monday to Friday) Weekends (Saturday and Sunday)"
+    			]
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			optclear
+			(
+    			type = checkbox
+				displayname = "Clear Previous Operating Hours"
+				initial value = false
+    			description
+    			[
+    				type = tooltip
+    			 	message = "This option will remove all previously saved operating hours. Are you sure you want to select this option?"
+    			]
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+	}
+	reports
+	{
+		default list Restaurants_Report
+		{
+			displayName = "Restaurants Report"
+			show all rows from New_Restaurant    
+			(
+				Brand_Lookup as "Brand"
+				Market_Lookup as "Market"
+				Restaurant_Name as "Restaurant"
+				Property_Type_Lookup as "Property Type"
+				Channel
+				Home_Image as "Image"
+				Store_ID as "Store ID"
+				Store_Name as "Store Name"
+				custom action "Open Polygon"
+				(
+	  			workflow = Add_polygon
+				show action in edit record menu = true
+				column header = "Open Polygon"
+				)
+				custom action "Upload Coordinates"
+				(
+	  			workflow = uploadcoordinates
+				show action in edit record menu = true
+				column header = "Upload Coordinates"
+				)
+				Restaurant_Code as "Restaurant ID"
+				Lat as "Latitude"
+				Long as "Longitude"
+				Google_Location as "Google Location"
+				Store_Opening_Date as "Open Date"
+				Operating_Hourse as "Operating Hours"
+				(
+					field = Operating_Hourse.Days + " " + Operating_Hourse.Opening_Hrs + " " + Operating_Hourse.Closing_Hourse
+				)
+				Area_Lookup as "Area"
+				Property_Type_Lookup.Property_Type as "Asset Type"
+				Rating
+				Address 
+	 			(
+	      			enable = Link_to_Map,Show_As_Text
+	 			)
+				Phone_Number as "Phone"
+				(
+					displayformat = formattednumber 
+					linktodial = disable
+				)
+				isActive
+				Image_Dimension as "Image Dimension"
+				Brand_Lookup.Name as "Brand"
+				Store_Type1 as "Store Category"
+				Amenities1 as "Amenities"
+				Facilities
+			)
+			sort by
+			(
+				Store_ID ascending
+			)
+		}
+		default list All_Restaurent_Types
+		{
+			displayName = "Asset Types"
+			show all rows from Property_Type    
+			(
+				Property_Type as "Asset Type"
+			)
+		}
+		default list All_Coordinates1
+		{
+			displayName = "All Coordinates"
+			show all rows from Serving_Coordinates    
+			(
+				File_Upload as "Cordinates File"
+				Name
+				Description
+				Coordinates_JSON as "Coordinates JSON"
+			)
+		}
+		default list Upload_Delivery_Coordinates_Report
+		{
+			displayName = "Coordinates"
+			show all rows from Upload_Delivery_Coordinates    
+			(
+				Restaurant_Name as "Restaurant Name"
+				Coordinates_File as "Coordinates File"
+				Delivery_Coordinates as "Delivery Coordinates"
+				Location_Name as "Location Name"
+				isActive
+				R_id as "Restaurant Id"
+				Store
+			)
+			group by
+			(
+				Restaurant_Name ascending
+			)
+		}
+		default list Key_Generater_Report
+		{
+			displayName = "Key Generater Report"
+			show all rows from Key_Generater    
+			(
+				Auth_Key as "Auth Key"
+				User_Name as "User Name"
+				Restaurant_Name as "Restaurant Name"
+			)
+		}
+		default list Items_eport
+		{
+			displayName = "Status"
+			show all rows from Items_list  [RecStatus == true]  
+			(
+				Restaurant_Name as "Name"
+				Items_to_be_exclude as "Items"
+				(
+					delimiter = newline
+				)
+				Restaurant_Name.Market_Lookup as "Market"
+				Restaurant_Name.Brand_Lookup as "Brand"
+				Market_Lookup as "Market"
+				Brand_Lookup as "Brand"
+				Status as "Detail"
+				to_date as "To"
+				from_date as "From"
+				custom action "Mark Available"
+				(
+	  			workflow = deleterecord
+				show action in edit record menu = true
+				column header = "Mark Available"
+				condition = (RecStatus == true)
+				confirmation before execution
+				(
+					message for individual record = "Are you sure you want to proceed with this action?"
+					confirm button text = "Yes"		
+					cancel button text = "No"
+				)
+				)
+				Added_User as "Added By"
+				Added_Time as "Added On"
+				(
+					displayformat = dateonly
+				)
+				RecStatus as "Status"
+				(
+						displaytrue = "Unavailable"
+						displayfalse = "Available"
+				)
+				UpdatedBy as "Updated by"
+				UpdatedOn as "Updated on"
+			)
+			filters
+			(
+				Restaurant_Name
+			)
+			group by
+			(
+				Restaurant_Name ascending
+			)
+		}
+		default list Authorization_Popup_Report
+		{
+			displayName = "Authorization Popup Report"
+			show all rows from Authorization_Popup    
+			(
+				Username
+				Pass_Key as "Pass Key"
+			)
+		}
+		default list UploadOpeningClosingTime_Report
+		{
+			displayName = "UploadOpeningClosingTime Report"
+			show all rows from UploadOpeningClosingTime    
+			(
+				File_upload as "File upload"
+				rdDays as "Days"
+				optclear as "Clear Previous Operating Hours"
+			)
+		}
+		default list All_Areas
+		{
+			displayName = "Areas"
+			show all rows from Area    
+			(
+				Area_Name as "Area Name"
+				Market
+				Code
+			)
+			sort by
+			(
+				Market descending
+			)
+		}
+		list Exclusion_History
+		{
+			displayName = "History"
+			show all rows from Items_list  [RecStatus == false]  
+			(
+				Market_Lookup as "Market"
+				Restaurant_Name as "Name"
+				Status as "Detail"
+				Brand_Lookup as "Brand"
+				Items_to_be_exclude as "Items"
+				(
+					delimiter = newline
+				)
+				from_date as "From"
+				to_date as "To"
+				RecStatus as "Status"
+				(
+						displaytrue = "Unavailable"
+						displayfalse = "Available"
+				)
+				Added_User as "Added By"
+				Added_Time as "Added on"
+				(
+					displayformat = dateonly
+				)
+				UpdatedBy as "Updated by"
+				UpdatedOn as "Updated on"
+			)
+			conditional formatting
+			(
+				"New Formatting"
+				{
+				condition = (RecStatus == true)
+				fields = [Items_to_be_exclude]
+				format = "color:#ffffff;background-color:#e84c3d;"
+				}
+				"New Formatting"
+				{
+				condition = (RecStatus == false)
+				fields = [Items_to_be_exclude]
+				format = "color:#ffffff;background-color:#1bbc9b;"
+				}
+			)
+		}
+		default list All_Flow_Diagrams
+		{
+			displayName = "All Flow Diagrams"
+			show all rows from Flow_Diagram    
+			(
+				Flow_Image as "Flow Image"
+			)
+		}
+		default list All_Display_Flow_Images
+		{
+			displayName = "All Display Flow Images"
+			show all rows from Display_Flow_Image    
+		}
+		list Display_Flow
+		{
+			displayName = "Display Flow"
+			show all rows from Flow_Diagram    
+			(
+				Flow_Image as "Flow Image"
+				(
+			dimension = custom
+			imagewidth = 100px
+			imageheight = 100px
+				)
+			)
+		}
+		default list Store_Category_Report
+		{
+			displayName = "Store Category Report"
+			show all rows from Store_Category    
+			(
+				Category_Number as "Category Number"
+				(
+					width = 238px
+				)
+				Category_Name as "Category Name"
+				(
+					width = 629px
+				)
+				Brand
+				(
+					width = 159px
+				)
+			)
+			sort by
+			(
+				Category_Number ascending
+			)
+		}
+		default list All_Store_Amenities
+		{
+			displayName = "Store Amenities"
+			show all rows from Amenities    
+			(
+				Amenity_Number as "Amenity Number"
+				(
+					width = 152px
+				)
+				Amenity_Type as "Amenity Type"
+				(
+					width = 295px
+				)
+				Icon
+				(
+					width = 480px
+				)
+			)
+			sort by
+			(
+				Amenity_Number ascending
+			)
+		}
+		default list All_Facilities
+		{
+			displayName = "All Facilities"
+			show all rows from Facilities    
+			(
+				Facility_Type as "Facility Type"
+				(
+					width = 308px
+				)
+				Facility_Number as "Facility Number"
+				(
+					width = 176px
+				)
+				Activity as "Activity Status"
+				(
+					width = 458px
+				)
+			)
+			sort by
+			(
+				Facility_Number ascending
+			)
+		}
+		default list All_App_Icons
+		{
+			displayName = "All App Icons"
+			show all rows from App_Icons    
+			(
+				Icon_Type as "Icon Type"
+				Name
+				Icon
+			)
+			sort by
+			(
+				Icon_Type ascending
+			)
+		}
+		list All_Restaurant_Images
+		{
+			displayName = "All Restaurant Images"
+			show all rows from New_Restaurant    
+			(
+				Market_Lookup as "Market"
+				Brand_Lookup as "Brand"
+				Channel
+				Area_Lookup as "Area"
+				Loyalty_Reference as "Loyalty Reference"
+				Restaurant_Name as "Restaurant Name"
+				Store_ID as "Store ID"
+				Store_Type1 as "Store Category"
+				Home_Image as "Image"
+				Facilities
+				Store_Name as "Store Name"
+				Restaurant_Code as "Restaurant Code"
+				Property_Type_Lookup as "Property Type"
+				isActive
+				Lat as "Latitude"
+				Google_Location as "Google Location"
+				Phone_Number as "Phone"
+				(
+					displayformat = plainnumber 
+				)
+				Rating
+				Long as "Longitude"
+				Address 
+	 			(
+	      			enable = Link_to_Map,Show_As_Text
+	 			)
+				Store_Opening_Date as "Open Date"
+				Image_Dimension as "Image Dimension"
+				Amenities1 as "Amenities"
+			)
+		}
+		list All_Restaurant
+		{
+			displayName = "All Restaurant"
+			show all rows from New_Restaurant    
+			(
+				Market_Lookup as "Market"
+				Brand_Lookup as "Brand"
+				Channel
+				Area_Lookup as "Area"
+				Loyalty_Reference as "Loyalty Reference"
+				Restaurant_Name as "Restaurant Name"
+				Store_ID as "Store ID"
+				Store_Type1 as "Store Category"
+				Home_Image as "Image"
+				Facilities
+				Store_Name as "Store Name"
+				Restaurant_Code as "Restaurant Code"
+				Property_Type_Lookup as "Property Type"
+				isActive
+				Lat as "Latitude"
+				Google_Location as "Google Location"
+				Phone_Number as "Phone"
+				(
+					displayformat = plainnumber 
+				)
+				Rating
+				Long as "Longitude"
+				Address 
+	 			(
+	      			enable = Link_to_Map,Show_As_Text
+	 			)
+				Store_Opening_Date as "Open Date"
+				Image_Dimension as "Image Dimension"
+				Amenities1 as "Amenities"
+			)
+		}
+	}
+	pages
+	{
+		page Polygon_Page
+		{
+			displayname = "Polygon Page"
+			Content="<zml    \t\t\n\t\t\n\t\t\n\t\t\n\t\t\n>\n\t<layout>\n\t<row>\n\t<column\n   \t\t width='100%'\n   \t>\n\t<dsp id='html_snippet' elementName='HTML Snippet'\n bgColor=\"#FFFFFF\" \n>\n\t<![CDATA[htmlpage html_snippet()\ncontent\n&lt;%{\n\t%&gt;\n&lt;iframe name=&apos;zohoview&apos; height=&apos;400&apos; width=&apos;100%&apos; frameborder=&apos;0&apos; scrolling=&apos;Auto&apos; src=&apos;https://www.google.com/maps/d/u/0/&apos; &gt;&lt;/iframe&gt;\n&lt;%\n\n}%&gt;]]>\n</dsp>\n</column>\n</row>\n</layout>\n</zml>"
+		}
+		page MapWidget(string widgetParams)
+		{
+			displayname = "MapWidget"
+			Content="<zml    \t\t\n\t\t\n\t\t\n\t\t\n\t\t\n>\n\t<layout>\n\t\n</layout>\n</zml>"
+			script
+			{
+				/* Write your script logic here. You can assign values to the page variables you've created in the previous tab. Enter 'input.' to list the created page variables. */
+				info input.widgetParams;
+			}
+		}
+		page Restaurant_Page(int brand_id, string brand_name_var, int market_id, string market_name_var)
+		{
+			displayname = "All Restaurant"
+			Content="<zml    \t\t\n\t\t\n\t\t\n\t\t\n\t\t\n>\n\t<layout>\n\t<row>\n\t<column\n   \t\t width='100%'\n   \t>\n\t<dsp id='html_snippet1' elementName='Navigation'\n bgColor=\"#FFFFFF\" \n>\n\t<![CDATA[htmlpage html_snippet1()\ncontent\n&lt;%{\n\t%&gt;\n&lt;div style=&quot;padding: 10px 16px;display: flex;align-items: center;&quot;&gt;\n\t\n\t&lt;a href=&quot;#Page:Restaurant_Page&quot;&gt;Dashboard&lt;/a&gt;\n&lt;%\n\tif(input.brand_id != null)\n\t{\n\t\tbrand_name = copy_of_product_catalogue_management.restaurant_management.getBrand(input.brand_id).get(0).get(&quot;name&quot;);\n\t\t%&gt;\n&lt;span style=&quot;padding: 0 0.5rem;font-size: 0.5rem;font-weight: 900;&quot;&gt;/&lt;/span&gt;&lt;a href=&quot;#Page:Restaurant_Page?brand_id=&lt;%=input.brand_id%&gt;&quot;&gt;&lt;%=brand_name%&gt;&lt;/a&gt;\n&lt;%\n\t}\n\tif(input.market_id != null)\n\t{\n\t\tmarket_name = copy_of_product_catalogue_management.restaurant_management.getMarket(input.market_id).get(0).get(&quot;name&quot;);\n\t\t%&gt;\n&lt;span style=&quot;padding: 0 0.5rem;font-size: 0.5rem;font-weight: 900;&quot;&gt;/&lt;/span&gt;&lt;a href=&quot;#Page:Restaurant_Page?brand_id=&lt;%=input.brand_id%&gt;&amp;market_id=&lt;%=input.market_id%&gt;&quot;&gt;&lt;%=market_name%&gt;&lt;/a&gt;\n&lt;%\n\t}\n\t%&gt;\n&lt;/div&gt;\n&lt;%\n\n}%&gt;]]>\n</dsp>\n</column>\n</row><row>\n\t<column\n   \t\t width='100%'\n   \t>\n\t<dsp id='html_snippet2' elementName='HTML Snippet'\n bgColor=\"#FFFFFF\" \n>\n\t<![CDATA[htmlpage html_snippet2()\ncontent\n&lt;%{\n\tif(input.market_id == null)\n\t{\n\t\tif(input.brand_id == null)\n\t\t{\n\t\t\tbrands_list = copy_of_product_catalogue_management.restaurant_management.getAllBrands();\n\t\t\t%&gt;\n&lt;table&gt;\n  \t\t\t\t&lt;tr&gt;\n\t\t\t\t    &lt;th&gt;Brand&lt;/th&gt;\n\t\t\t\t    &lt;th&gt;Markets&lt;/th&gt;\n\t\t\t\t    &lt;th&gt;Restaurants&lt;/th&gt;\n\t\t\t\t&lt;/tr&gt;\n&lt;%\n\t\t\tfor each  brand in brands_list\n\t\t\t{\n\t\t\t\tbrands_list_id = brand.get(&quot;id&quot;);\n\t\t\t\trestaurant_list = New_Restaurant[Brand_Lookup = brands_list_id];\n\t\t\t\t%&gt;\n&lt;tr&gt;\n\t\t\t\t&lt;td&gt;&lt;a href=&apos;#Page:Restaurant_Page?brand_id=&lt;%=brand.get(&quot;id&quot;)%&gt;&apos;&gt;&lt;%=brand.get(&quot;name&quot;)%&gt;&lt;/a&gt;&lt;/td&gt;\n\t\t\t\t&lt;td&gt;&lt;%=brand.get(&quot;market_size&quot;)%&gt;&lt;/td&gt;\n\t\t\t\t&lt;td&gt;&lt;%=restaurant_list.count()%&gt;&lt;/td&gt;\n\t\t\t&lt;/tr&gt;\n&lt;%\n\t\t\t}\n\t\t\t%&gt;\n&lt;/table&gt;\n&lt;%\n\t\t}\n\t\telse\n\t\t{\n\t\t\tselected_brand = copy_of_product_catalogue_management.restaurant_management.getBrand(input.brand_id).get(0);\n\t\t\t%&gt;\n&lt;table&gt;\n  &lt;tr&gt;\n  \t&lt;th&gt;Markets - &lt;%=selected_brand.get(&quot;name&quot;)%&gt;&lt;/th&gt;\n    &lt;th&gt;Items&lt;/th&gt;\n  &lt;/tr&gt;\n&lt;%\n\t\t\tselected_brand_id = selected_brand.get(&quot;id&quot;);\n\t\t\tfor each  market in selected_brand.get(&quot;markets&quot;)\n\t\t\t{\n\t\t\t\tselected_brand_market_id = market.get(&quot;id&quot;);\n\t\t\t\tmenu_list = New_Restaurant[Brand_Lookup == selected_brand_id &amp;&amp; Market_Lookup == selected_brand_market_id];\n\t\t\t\t%&gt;\n&lt;tr&gt;\n    &lt;td&gt;\n\t&lt;a href=&quot;#Page:Restaurant_Page?brand_id=&lt;%=selected_brand_id%&gt;&amp;market_id=&lt;%=selected_brand_market_id%&gt;&quot;&gt;\n\t&lt;%=market.get(&quot;name&quot;)%&gt;\n\t&lt;/a&gt;\n\t&lt;/td&gt;\n\t&lt;td&gt;\n\t\t&lt;%=menu_list.count()%&gt;\n\t&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;%\n\t\t\t}\n\t\t\t%&gt;\n&lt;/table&gt;\n&lt;%\n\t\t}\n\t}\n\tif(input.brand_id != null &amp;&amp; input.market_id != null)\n\t{\n\t\tbrand_name = copy_of_product_catalogue_management.restaurant_management.getBrand(input.brand_id).get(0).get(&quot;name&quot;);\n\t\tmarket_name = copy_of_product_catalogue_management.restaurant_management.getMarket(input.market_id).get(0).get(&quot;name&quot;);\n\t\t%&gt;\n&lt;div elName=&apos;zc-component&apos; viewLinkName=&apos;Restaurants_Report&apos; params=&quot;zc_Header=true&amp;Brand_Lookup=&lt;%=brand_name%&gt;&amp;Market_Lookup=&lt;%=market_name%&gt;&quot;&gt;Loading View...&lt;/div&gt;\n&lt;%\n\t}\n\t%&gt;\n&lt;style&gt;\ntable {\n  border-collapse: collapse;\n  width: 100%;\n}\n\ntd, th {\n  border: 1px solid #eeeeee;\n  text-align: left;\n  padding: 8px;\n}\n\ntr:nth-child(even) {\n  background-color: #eeeeee;\n}\n&lt;/style&gt;\n&lt;%\n\n}%&gt;]]>\n</dsp>\n</column>\n</row>\n</layout>\n</zml>"
+		}
+		page PgDisplay_Flow(string image_url)
+		{
+			displayname = "PgDisplay Flow"
+			Content="<zml    \t\t\n\t\t\n\t\t\n\t\t\n\t\t\n>\n\t<layout>\n\t<row>\n\t<column\n   \t\t width='100%'\n   \t>\n\t<dsp id='html_snippet3' elementName='HTML Snippet'\n bgColor=\"#FFFFFF\" \n>\n\t<![CDATA[htmlpage html_snippet3()\ncontent\n&lt;%{\n\t%&gt;\n&lt;!DOCTYPE html&gt;\n&lt;html lang=&quot;en&quot;&gt;\n&lt;head&gt;\n    &lt;meta charset=&quot;UTF-8&quot;&gt;\n    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;\n    &lt;title&gt;Full Page Image&lt;/title&gt;\n    &lt;style&gt;\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n\n        .image-container {\n         \n            top: 0;\n            left: 0;\n           \n            overflow: hidden;\n        }\n\n        .image-container img {\n            width: 100%;\n            height: 100%;\n            object-fit: cover; /* Ensures the image covers the full area */\n            filter: brightness(1.2); /* Makes the image brighter */\n        }\n    &lt;/style&gt;\n&lt;/head&gt;\n&lt;body&gt;\n\n    &lt;div class=&quot;image-container&quot;&gt;\n        &lt;img src=&quot;https://creatorapp.zoho.com/rtbidigitalassets_americanafood/restaurant-management/report/All_Flow_Diagrams/4661594000002878005/Flow_Image/download-file?filepath=/1738591670969_Acrchitecture_for_loyalty_1.PNG&quot; alt=&quot;Full Screen Background&quot;&gt;\n    &lt;/div&gt;\n\n&lt;/body&gt;\n&lt;/html&gt;\n&lt;%\n\n}%&gt;]]>\n</dsp>\n</column>\n</row>\n</layout>\n</zml>"
+			script
+			{
+				/* Write your script logic here. You can assign values to the page variables you've created in the previous tab. Enter 'input.' to list the created page variables. */
+				imageurl = Flow_Diagram[ID != 0];
+				var = imageurl.Flow_Image.getSuffix("image/").getprefix("\" lowqual");
+				input.image_url = "https://creatorexport.zoho.com/file/rtbidigitalassets_americanafood/restaurant-management/All_Flow_Diagrams/" + imageurl.ID + "/Flow_Image/image-download?filepath=/" + var;
+			}
+		}
+	}
+
+
+		 functions
+		 {
+			 Deluge
+			 {
+				 void syncDataKK()
+                 {
+                 	getRestaurants = New_Restaurant[ID != 0 && Brand_Lookup == 4661594000001750007];
+                 	for each  rec in getRestaurants
+                 	{
+                 		relatedID = krispy_kreme.stores.syncStores(rec.ID);
+                 		if(relatedID != null)
+                 		{
+                 			rec.Loyalty_Reference=relatedID;
+                 		}
+                 	}
+                 }
+				 string timeConvert_timeTo24HourFormat(string inputTime)
+                 {
+                 	try 
+                 	{
+                 		// Check if inputTime is not empty or null
+                 		if(inputTime != null && inputTime != "")
+                 		{
+                 			inputTime = inputTime.trim().toUpperCase();
+                 			// Clean and standardize the input
+                 			// Check if the time has AM/PM
+                 			if(inputTime.contains("AM") || inputTime.contains("PM"))
+                 			{
+                 				return "hello";
+                 			}
+                 			else
+                 			{
+                 				return inputTime.trim();
+                 				// Return the time as it is if no AM/PM
+                 			}
+                 		}
+                 		else
+                 		{
+                 			return "";
+                 			// Return empty string if inputTime is empty or null
+                 		}
+                 	}
+                 	catch (e)
+                 	{
+                 		// Return error message if an exception occurs
+                 		return "Error processing time: " + e;
+                 	}
+                 }
+				 map Address.getAddressFromLatLong(string lat, string long)
+                 {
+                 	address_result = Map();
+                 	apiUrl = "https://nominatim.openstreetmap.org/reverse?format=json&lat=" + lat + "&lon=" + long + "&accept-language=en";
+                 	response = getUrl(apiUrl).toMap();
+                 	if(response.get("address") != null)
+                 	{
+                 		address_result.put("address",response.get("display_name"));
+                 		address_result.put("status","success");
+                 	}
+                 	else
+                 	{
+                 		address_result.put("address","No address found");
+                 		address_result.put("status","failed");
+                 	}
+                 	return address_result;
+                 }
+				 map Address.getDistanceAndTimeWithBing(string store_lat, string store_lng, string customer_lat, string customer_lng)
+                 {
+                 	distance_result = Map();
+                 	api_key = ""; // Bing Maps API key removed - set via secure config
+                 	url = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?" + "origins=" + customer_lat + "," + customer_lng + "&destinations=" + store_lat + "," + store_lng + "&travelMode=driving" + "&key=" + api_key;
+                 	response = getUrl(url).toMap();
+                 	if(response.get("statusCode") == 200)
+                 	{
+                 		results = response.get("resourceSets").toJSONList();
+                 		if(results.size() > 0)
+                 		{
+                 			resources = results.get(0).get("resources").toJSONList();
+                 			if(resources.size() > 0)
+                 			{
+                 				results_list = resources.get(0).get("results").toJSONList();
+                 				if(results_list.size() > 0)
+                 				{
+                 					element = results_list.get(0);
+                 					travelDistance = element.get("travelDistance");
+                 					// in km
+                 					travelDuration = element.get("travelDuration");
+                 					// in seconds
+                 					distance_result.put("distance_km",travelDistance.toDecimal().round(2) + " km");
+                 					duration_min = (travelDuration.toDecimal() / 60).round(0);
+                 					distance_result.put("duration_min",duration_min.toLong() + " mins");
+                 					distance_result.put("status","success");
+                 				}
+                 			}
+                 		}
+                 	}
+                 	else
+                 	{
+                 		distance_result.put("distance_km","N/A");
+                 		distance_result.put("duration_min","N/A");
+                 		distance_result.put("status","failed");
+                 	}
+                 	return distance_result;
+                 }
+				 void Address.sdfsd()
+                 {
+                 }
+				 list brandmanagement.getAllBrand()
+                 {
+                 	//lstdata = https://creatorapp.zoho.com/rtbidigitalassets_americanafood/copy-of-product-catalogue-management/Brand [ ID != null ];
+                 	return List();
+                 }
+				 string facilitymanagement.getfacilitybyid(int facilityid)
+                 {
+                 	objfacility = Facilities[ID == facilityid];
+                 	return objfacility.Facility_Type;
+                 }
+				 string fileManagement.getFlowimage()
+                 {
+                 	imageurl = Flow_Diagram[ID != 0];
+                 	var = imageurl.Flow_Image.getSuffix("image/").getprefix("\" lowqual");
+                 	imageUrl = "https://creatorexport.zoho.com/file/rtbidigitalassets_americanafood/restaurant-management/All_Flow_Diagrams/" + imageurl.ID + "/Flow_Image/image-download?filepath=/" + var;
+                 	return imageUrl;
+                 }
+				 string fileManagement.getstoreImagebyid(string recordid)
+                 {
+                 	fet = New_Restaurant[ID == recordid.tolong()];
+                 	fetPhoto = fet.Home_Image.getsuffix("image/").getprefix("\" lowqual");
+                 	imgSrc = "https://creatorapp.zohopublic.com/file/rtbidigitalassets_americanafood/restaurant-management/All_Restaurant_Images/" + fet.ID + "/Home_Image/image-download/wCukugEA2a5zVN6uD9MQW5Z0UOC3SS3QnqKMvZgmete1p7EMDHVQv35UTyyyuHh5SNFr1tkhquMRKva7zEKKg3PuOq4tt1d44jyE?filepath=/" + fetPhoto;
+                 	return imgSrc;
+                 }
+				 string fileManagement.processImageUrl(String image)
+                 {
+                 	try 
+                 	{
+                 		if(image != null)
+                 		{
+                 			image = image.getsuffix("downqual = ");
+                 			image = image.getsuffix("\"");
+                 			image = image.getprefix("\"");
+                 			imageSplits = image.toList("/");
+                 			image = imageSplits.get(imageSplits.size() - 1);
+                 			return image;
+                 		}
+                 		else
+                 		{
+                 		}
+                 	}
+                 	catch (e)
+                 	{
+                 		//thisapp.ErrorHandling.catchCall("Function - fileManagement.processImageUrl - Catch",e);
+                 	}
+                 	return "";
+                 }
+				 string fileManagement.processImageUrlNeww(String image)
+                 {
+                 	try 
+                 	{
+                 		if(image != null)
+                 		{
+                 			image = image.getsuffix("downqual = ");
+                 			image = image.getsuffix("\"");
+                 			image = image.getprefix("\"");
+                 			imageSplits = image.toList("/");
+                 			image = imageSplits.get(imageSplits.size() - 1);
+                 			return image;
+                 		}
+                 		else
+                 		{
+                 		}
+                 	}
+                 	catch (e)
+                 	{
+                 		//thisapp.ErrorHandling.catchCall("Function - fileManagement.processImageUrl - Catch",e);
+                 	}
+                 	return "";
+                 }
+				 string formater.Format_Phone(string phone_input)
+                 {
+                 	if(phone_input.getAlphaNumeric().length() < 6)
+                 	{
+                 		phone_output = "error";
+                 	}
+                 	else
+                 	{
+                 		phone_output = phone_input.getAlphaNumeric().subString(0,3) + " " + phone_input.getAlphaNumeric().subString(3,5) + " " + phone_input.getAlphaNumeric().subString(5,8) + " " + phone_input.getAlphaNumeric().subString(8);
+                 	}
+                 	return '+' + phone_output;
+                 }
+				 map googleapi.getFormattedAddress(string lat, string lng)
+                 {
+                 	api_key = "";
+                 	// Replace with your API key
+                 	result = Map();
+                 	geo_url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&key=" + api_key;
+                 	geo_response = getUrl(geo_url).toMap();
+                 	if(geo_response.get("status") == "OK")
+                 	{
+                 		geo_results = geo_response.get("results").toJSONList();
+                 		if(geo_results.size() > 0)
+                 		{
+                 			result.put("address",geo_results.get(0).get("formatted_address"));
+                 		}
+                 		else
+                 		{
+                 			result.put("address","Address not found");
+                 		}
+                 	}
+                 	else
+                 	{
+                 		result.put("address","Geocoding error: " + geo_response.get("status"));
+                 	}
+                 	return result;
+                 }
+				 string imageUrl.getammenitiesImageurl(string recordid)
+                 {
+                 	fet = Amenities[ID == recordid.tolong()];
+                 	fetPhoto = fet.Icon.getsuffix("image/").getprefix("\" lowqual");
+                 	imgSrc = "https://creatorapp.zohopublic.com/file/rtbidigitalassets_americanafood/restaurant-management/All_Store_Amenities/" + fet.ID + "/Icon/image-download/rOQXyH8WVapMp79pCUvNXUOWwXUnby73w0O1QHW8HEEd22vhyzsHC6DfQFTNMmxyxB6yS35Dh6NvXQ9eerGH65s0SF4CzOVqtxFK?filepath=/" + fetPhoto;
+                 	return imgSrc;
+                 }
+				 string imageUrl.getappiconsbytype(string icontype)
+                 {
+                 	fet = App_Icons[Icon_Type == icontype.tolong()];
+                 	fetPhoto = fet.Icon.getsuffix("image/").getprefix("\" lowqual");
+                 	imgSrc = "https://creatorapp.zohopublic.com/file/rtbidigitalassets_americanafood/restaurant-management/All_App_Icons/" + fet.ID + "/Icon/image-download/3qHXXMO6Hsx8Dj16WdB5Ye9AzFNJr5mmfmsx4062xTrv21e9PyqB7CHJg8nxAfbKOD6reWQ2dxHPTJeyKtCMFvr3Ak4mHOwNjSJp?filepath=/" + fetPhoto;
+                 	return imgSrc;
+                 }
+				 string imageUrl.getstoreimageurl(string recordid)
+                 {
+                 	fet = New_Restaurant[ID == recordid.tolong()];
+                 	fetPhoto = fet.Home_Image.getsuffix("image/").getprefix("\" lowqual");
+                 	imgSrc = "https://creatorapp.zohopublic.com/file/rtbidigitalassets_americanafood/restaurant-management/All_Restaurant_Images/" + fet.ID + "/Home_Image/image-download/wCukugEA2a5zVN6uD9MQW5Z0UOC3SS3QnqKMvZgmete1p7EMDHVQv35UTyyyuHh5SNFr1tkhquMRKva7zEKKg3PuOq4tt1d44jyE?filepath=/" + fetPhoto;
+                 	return imgSrc;
+                 }
+				 collection internal.getAllStoreTypes()
+                 {
+                 	stores = Store_Category[ID != 0].Category_Name.getAll();
+                 	return stores;
+                 }
+				 string internal.getRestaurantImage(int reataurantid)
+                 {
+                 	return "";
+                 }
+				 int internal.getStoreType(string name)
+                 {
+                 	id = Store_Category[Category_Name = name].ID;
+                 	return id;
+                 }
+				 list internal.sortListByNumericField(list itemTypeList, string fieldName)
+                 {
+                 	listSize = itemTypeList.size();
+                 	if(listSize > 1)
+                 	{
+                 		for each  index1 in itemTypeList
+                 		{
+                 			for each  index2 in itemTypeList
+                 			{
+                 				priority1 = index1.get(fieldName).toNumber();
+                 				priority2 = index2.get(fieldName).toNumber();
+                 				if(priority1 < priority2)
+                 				{
+                 					temp = index1;
+                 					index1.putAll(index2);
+                 					index2.putAll(temp);
+                 				}
+                 			}
+                 		}
+                 	}
+                 	return itemTypeList;
+                 }
+				 string latlongfromcsv.getLatlongFromCSV(String fileContent)
+                 {
+                 	//fileContent = input.File_Upload.content;
+                 	startIndex = fileContent.indexOf("((") + 2;
+                 	endIndex = fileContent.indexOf("))");
+                 	if(startIndex > 1 && endIndex > startIndex)
+                 	{
+                 		coords = fileContent.subString(startIndex,endIndex);
+                 		coords_list = coords.toList(", ");
+                 		coordinates_json = List();
+                 		for each  coord in coords_list
+                 		{
+                 			v = coord.toList(" ");
+                 			if(v.size() == 2)
+                 			{
+                 				latitude = v.get(0);
+                 				longitude = v.get(1);
+                 				//info "Latitude: " + latitude + ", Longitude: " + longitude;
+                 				coord_json = Map();
+                 				coord_json.put("lat",latitude);
+                 				coord_json.put("long",longitude);
+                 				coordinates_json.add(coord_json);
+                 			}
+                 		}
+                 	}
+                 	return coordinates_json.toString();
+                 }
+				 map storemanagement.enableStoreScreenStrings()
+                 {
+                 	strings = Map();
+                 	strings.put("store_view_title","Our Stores");
+                 	strings.put("enable_store_heading","Enable Location");
+                 	strings.put("enable_store_description","Please enable your location to find the nearest Krispy Kreme Store");
+                 	strings.put("enable_store_button_text","Enable Location");
+                 	return strings;
+                 }
+				 map storemanagement.getAllStore(string brandid, string marketid, string localTime)
+                 {
+                 	allStores = Map();
+                 	days = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
+                 	today = days.get(localTime.toTime().getDayOfWeek() - 1);
+                 	getStores = New_Restaurant[Brand_Lookup == toNumber(brandid) && Market_Lookup == toNumber(marketid) && isActive == true];
+                 	if(getStores.count() > 0)
+                 	{
+                 		allStores.put("nearby_stores_text","Nearby Stores");
+                 		allStores.put("store_view_title","Our Stores");
+                 		allStores.put("directions_text","Directions");
+                 		allStores.put("search_hint_text","Search stores");
+                 		allStores.put("search_store_not_found_string","No stores found");
+                 		storeLocationList = List();
+                 		for each  store in getStores
+                 		{
+                 			imgSrc = thisapp.fileManagement.processImageUrl(store.Home_Image);
+                 			id = toString(store.ID);
+                 			storeDetail = Map();
+                 			basicStore = Map();
+                 			basicStore.put("id",store.ID.toString());
+                 			basicStore.put("restaurant_name",store.Restaurant_Name.toUpperCase());
+                 			basicStore.put("public_image",krispy_kreme.PublicUrl.allRestaurants(store.Loyalty_Reference,imgSrc));
+                 			basicStore.put("address",store.Address);
+                 			basicStore.put("menu_description","Donuts, Desserts, Coffee");
+                 			storeImageBasic = Map();
+                 			storeImageBasic.put("report_name","All_Stores");
+                 			storeImageBasic.put("field_name","Restaurant_Management.Home_Image");
+                 			storeImageBasic.put("image_refernce_id",store.Loyalty_Reference.toString());
+                 			storeImageBasic.put("image_src",imgSrc);
+                 			basicStore.put("image",storeImageBasic);
+                 			storeDetail.put("basic_store",basicStore);
+                 			storeDetail.put("store_id",toString(store.Store_ID));
+                 			storeDetail.put("restaurant_code",toString(store.Restaurant_Code));
+                 			storeDetail.put("restaurant_name",store.Restaurant_Name);
+                 			storeDetail.put("star_rating",ifnull(store.Rating,0.0));
+                 			storeDetail.put("address",store.Address);
+                 			market = Map();
+                 			market.put("market_name",store.Market_Lookup.Name);
+                 			market.put("market_id",toString(store.Market_Lookup.ID));
+                 			storeDetail.put("market",market);
+                 			area = Map();
+                 			area.put("area_name",store.Area_Lookup.Area_Name);
+                 			area.put("area_id",store.Area_Lookup.ID);
+                 			storeDetail.put("area_data",area);
+                 			storeDetail.put("latitude",toString(store.Lat));
+                 			storeDetail.put("longitude",toString(store.Long));
+                 			if(store.Phone_Number != null)
+                 			{
+                 				storeDetail.put("phone",toString(thisapp.formater.Format_Phone(toString(store.Phone_Number))));
+                 				basicStore.put("phone",toString(thisapp.formater.Format_Phone(toString(store.Phone_Number))));
+                 			}
+                 			else
+                 			{
+                 				storeDetail.put("phone",toString(store.Phone_Number));
+                 				basicStore.put("phone",toString(store.Phone_Number));
+                 			}
+                 			for each  timing in store.Operating_Hourse
+                 			{
+                 				storeDetail.put("opening_time",timing.Opening_Hrs);
+                 				storeDetail.put("closing_time",timing.Closing_Hourse);
+                 			}
+                 			storeImage = Map();
+                 			storeImage.put("report_name","All_Stores");
+                 			storeImage.put("field_name","Restaurant_Management.Home_Image");
+                 			storeImage.put("image_refernce_id",store.Loyalty_Reference.toString());
+                 			storeImage.put("image_src",imgSrc);
+                 			storeDetail.put("image",storeImage);
+                 			storeDetail.put("id",store.ID.toString());
+                 			// Initialize store status and is_opened
+                 			//storeDetail.put("id", toString(id));
+                 			//storeDetail.put("store_status", "Closed");
+                 			//storeDetail.put("is_opened", false);
+                 			for each  timing in store.Operating_Hourse
+                 			{
+                 				if(timing.Days == today)
+                 				{
+                 					storeStatusString = "";
+                 					isOpened = false;
+                 					storeDetail.put("opening_time",timing.Opening_Hrs);
+                 					storeDetail.put("closing_time",timing.Closing_Hourse);
+                 					fromTime = (zoho.currentdate.toString() + " " + timing.Opening_Hrs.toString()).toTime();
+                 					toTime = (zoho.currentdate.toString() + " " + timing.Closing_Hourse.toString()).toTime();
+                 					parsedLocalTime = localTime.toTime();
+                 					if(fromTime > toTime)
+                 					{
+                 						toTime = toTime.addHour(24);
+                 						if(parsedLocalTime < fromTime)
+                 						{
+                 							parsedLocalTime = parsedLocalTime.addHour(24);
+                 						}
+                 					}
+                 					if(fromTime > parsedLocalTime || toTime < parsedLocalTime)
+                 					{
+                 						fromTimeString = "";
+                 						fromSuffixString = "AM";
+                 						if(fromTime.getHour() > 12)
+                 						{
+                 							fromTimeString = fromTime.getHour() - 12;
+                 							fromSuffixString = "PM";
+                 						}
+                 						else
+                 						{
+                 							fromTimeString = fromTime.getHour();
+                 						}
+                 						storeStatusString = "Closed (Opens at " + fromTimeString + ":" + if(fromTime.getMinutes() < 10,fromTime.getMinutes() + "0",fromTime.getMinutes()) + " " + fromSuffixString + ")";
+                 					}
+                 					else if(fromTime <= parsedLocalTime && toTime >= parsedLocalTime)
+                 					{
+                 						isOpened = true;
+                 						toTimeString = "";
+                 						toSuffixString = "AM";
+                 						if(toTime.getHour() > 12)
+                 						{
+                 							toTimeString = toTime.getHour() - 12;
+                 							toSuffixString = "PM";
+                 						}
+                 						else if(toTime.getHour() <= 0)
+                 						{
+                 							toTimeString = "12";
+                 						}
+                 						else
+                 						{
+                 							toTimeString = toTime.getHour();
+                 						}
+                 						storeStatusString = "Open (Closes at " + toTimeString + ":" + if(toTime.getMinutes() < 10,toTime.getMinutes() + "0",toTime.getMinutes()) + " " + toSuffixString + ")";
+                 					}
+                 					storeDetail.put("operating_status",storeStatusString);
+                 					storeDetail.put("is_open",isOpened);
+                 					break;
+                 				}
+                 			}
+                 			storeLocationList.add(storeDetail);
+                 		}
+                 		allStores.put("stores",storeLocationList);
+                 	}
+                 	allStores.put("no_store_available_string","No stores for the selected market");
+                 	return allStores;
+                 }
+				 map storemanagement.getAllstorepeets(string brandid, string marketid, string localTime)
+                 {
+                 	allStores = Map();
+                 	days = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
+                 	today = days.get(localTime.toTime().getDayOfWeek() - 1);
+                 	getStores = New_Restaurant[Brand_Lookup == toNumber(brandid) && Market_Lookup == toNumber(marketid) && isActive == true];
+                 	if(getStores.count() > 0)
+                 	{
+                 		allStores.put("nearby_stores_text","Nearby Stores");
+                 		allStores.put("store_view_title","Our Stores");
+                 		allStores.put("directions_text","Directions");
+                 		allStores.put("search_hint_text","Search stores");
+                 		allStores.put("search_store_not_found_string","No stores found");
+                 		storeLocationList = List();
+                 		for each  store in getStores
+                 		{
+                 			imgSrc = thisapp.fileManagement.processImageUrl(store.Home_Image);
+                 			id = toString(store.ID);
+                 			storeDetail = Map();
+                 			basicStore = Map();
+                 			basicStore.put("id",store.ID.toString());
+                 			basicStore.put("restaurant_name",store.Restaurant_Name.toUpperCase());
+                 			basicStore.put("public_image",krispy_kreme.PublicUrl.allRestaurants(store.Loyalty_Reference,imgSrc));
+                 			basicStore.put("address",store.Address);
+                 			basicStore.put("menu_description","Donuts, Desserts, Coffee");
+                 			storeImageBasic = Map();
+                 			storeImageBasic.put("report_name","All_Stores");
+                 			storeImageBasic.put("field_name","Restaurant_Management.Home_Image");
+                 			storeImageBasic.put("image_refernce_id",store.Loyalty_Reference.toString());
+                 			storeImageBasic.put("image_src",imgSrc);
+                 			basicStore.put("image",storeImageBasic);
+                 			storeDetail.put("basic_store",basicStore);
+                 			storeDetail.put("store_id",toString(store.Store_ID));
+                 			storeDetail.put("restaurant_code",toString(store.Restaurant_Code));
+                 			storeDetail.put("restaurant_name",store.Restaurant_Name);
+                 			storeDetail.put("star_rating",ifnull(store.Rating,0.0));
+                 			storeDetail.put("address",store.Address);
+                 			market = Map();
+                 			market.put("market_name",store.Market_Lookup.Name);
+                 			market.put("market_id",toString(store.Market_Lookup.ID));
+                 			storeDetail.put("market",market);
+                 			area = Map();
+                 			area.put("area_name",store.Area_Lookup.Area_Name);
+                 			area.put("area_id",store.Area_Lookup.ID);
+                 			storeDetail.put("area_data",area);
+                 			storeDetail.put("latitude",toString(store.Lat));
+                 			storeDetail.put("longitude",toString(store.Long));
+                 			if(store.Phone_Number != null)
+                 			{
+                 				storeDetail.put("phone",toString(thisapp.formater.Format_Phone(toString(store.Phone_Number))));
+                 				basicStore.put("phone",toString(thisapp.formater.Format_Phone(toString(store.Phone_Number))));
+                 			}
+                 			else
+                 			{
+                 				storeDetail.put("phone",toString(store.Phone_Number));
+                 				basicStore.put("phone",toString(store.Phone_Number));
+                 			}
+                 			for each  timing in store.Operating_Hourse
+                 			{
+                 				storeDetail.put("opening_time",timing.Opening_Hrs);
+                 				storeDetail.put("closing_time",timing.Closing_Hourse);
+                 			}
+                 			storeImage = Map();
+                 			storeImage.put("report_name","All_Stores");
+                 			storeImage.put("field_name","Restaurant_Management.Home_Image");
+                 			storeImage.put("image_refernce_id",store.Loyalty_Reference.toString());
+                 			storeImage.put("image_src",imgSrc);
+                 			storeDetail.put("image",storeImage);
+                 			storeDetail.put("id",store.ID.toString());
+                 			// Initialize store status and is_opened
+                 			//storeDetail.put("id", toString(id));
+                 			//storeDetail.put("store_status", "Closed");
+                 			//storeDetail.put("is_opened", false);
+                 			for each  timing in store.Operating_Hourse
+                 			{
+                 				if(timing.Days == today)
+                 				{
+                 					storeStatusString = "";
+                 					isOpened = false;
+                 					storeDetail.put("opening_time",timing.Opening_Hrs);
+                 					storeDetail.put("closing_time",timing.Closing_Hourse);
+                 					fromTime = (zoho.currentdate.toString() + " " + timing.Opening_Hrs.toString()).toTime();
+                 					toTime = (zoho.currentdate.toString() + " " + timing.Closing_Hourse.toString()).toTime();
+                 					parsedLocalTime = localTime.toTime();
+                 					if(fromTime > toTime)
+                 					{
+                 						toTime = toTime.addHour(24);
+                 						if(parsedLocalTime < fromTime)
+                 						{
+                 							parsedLocalTime = parsedLocalTime.addHour(24);
+                 						}
+                 					}
+                 					if(fromTime > parsedLocalTime || toTime < parsedLocalTime)
+                 					{
+                 						fromTimeString = "";
+                 						fromSuffixString = "AM";
+                 						if(fromTime.getHour() > 12)
+                 						{
+                 							fromTimeString = fromTime.getHour() - 12;
+                 							fromSuffixString = "PM";
+                 						}
+                 						else
+                 						{
+                 							fromTimeString = fromTime.getHour();
+                 						}
+                 						storeStatusString = "Closed (Opens at " + fromTimeString + ":" + if(fromTime.getMinutes() < 10,fromTime.getMinutes() + "0",fromTime.getMinutes()) + " " + fromSuffixString + ")";
+                 					}
+                 					else if(fromTime <= parsedLocalTime && toTime >= parsedLocalTime)
+                 					{
+                 						isOpened = true;
+                 						toTimeString = "";
+                 						toSuffixString = "AM";
+                 						if(toTime.getHour() > 12)
+                 						{
+                 							toTimeString = toTime.getHour() - 12;
+                 							toSuffixString = "PM";
+                 						}
+                 						else if(toTime.getHour() <= 0)
+                 						{
+                 							toTimeString = "12";
+                 						}
+                 						else
+                 						{
+                 							toTimeString = toTime.getHour();
+                 						}
+                 						storeStatusString = "Open (Closes at " + toTimeString + ":" + if(toTime.getMinutes() < 10,toTime.getMinutes() + "0",toTime.getMinutes()) + " " + toSuffixString + ")";
+                 					}
+                 					storeDetail.put("operating_status",storeStatusString);
+                 					storeDetail.put("is_open",isOpened);
+                 					break;
+                 				}
+                 			}
+                 			storeLocationList.add(storeDetail);
+                 		}
+                 		allStores.put("stores",storeLocationList);
+                 	}
+                 	allStores.put("no_store_available_string","No stores for the selected market");
+                 	return allStores;
+                 }
+				 map storemanagement.getAllStorepeets_V2(string brandid, string marketid, string localTime)
+                 {
+                 	//string brandid, string marketid, string localTime
+                 	// 		brandid = "4661594000001750003";
+                 	// 		marketid = "4661594000001749003";
+                 	// 		localTime = "20-06-2025 09:30:00 AM";
+                 	response = Map();
+                 	result = Map();
+                 	storeList = list();
+                 	days = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
+                 	today = days.get(localTime.toTime().getDayOfWeek() - 1);
+                 	getStores = New_Restaurant[Brand_Lookup == toNumber(brandid) && Market_Lookup == toNumber(marketid)];
+                 	if(getStores.count() > 0)
+                 	{
+                 		for each  storeRow in getStores
+                 		{
+                 			imgSrc = thisapp.fileManagement.processImageUrl(storeRow.Home_Image);
+                 			store = Map();
+                 			overview = Map();
+                 			overview.put("id",storeRow.ID.tostring());
+                 			//location = thisapp.Address.getAddressFromLatLong(storeRow.Lat,storeRow.Long);
+                 			//location = thisapp.googleapi.getFormattedAddress(storeRow.Lat,storeRow.Long);
+                 			overview.put("location_name",storeRow.Restaurant_Name);
+                 			overview.put("location_icon",thisapp.imageUrl.getappiconsbytype("1"));
+                 			overview.put("review_value",storeRow.Rating);
+                 			overview.put("review_count","0");
+                 			if(storeRow.Phone_Number != null)
+                 			{
+                 				formattedPhone = thisapp.formater.Format_Phone(toString(storeRow.Phone_Number));
+                 				overview.put("phone",formattedPhone);
+                 			}
+                 			else
+                 			{
+                 				overview.put("phone",thisapp.imageUrl.getappiconsbytype("2"));
+                 			}
+                 			overview.put("phone_icon",thisapp.imageUrl.getappiconsbytype("2"));
+                 			overview.put("direction_text","Get directions");
+                 			overview.put("direction_icon",thisapp.imageUrl.getappiconsbytype("3"));
+                 			//distance = timedistance.getDistanceAndTime(storeRow.Lat,storeRow.Long,"25.9999","-40.99999");
+                 			//distance = thisapp.Address.getDistanceAndTimeWithBing(storeRow.Lat,storeRow.Long,"30.378180","76.776695");
+                 			//info distance;
+                 			overview.put("duration","");
+                 			overview.put("destination","");
+                 			// Open/Close Status
+                 			storeStatusString = "";
+                 			isOpened = false;
+                 			for each  timing in storeRow.Operating_Hourse
+                 			{
+                 				if(timing.Days == today)
+                 				{
+                 					fromTime = (zoho.currentdate.toString() + " " + timing.Opening_Hrs.toString()).toTime();
+                 					toTime = (zoho.currentdate.toString() + " " + timing.Closing_Hourse.toString()).toTime();
+                 					parsedLocalTime = localTime.toTime();
+                 					if(fromTime > toTime)
+                 					{
+                 						toTime = toTime.addHour(24);
+                 						if(parsedLocalTime < fromTime)
+                 						{
+                 							parsedLocalTime = parsedLocalTime.addHour(24);
+                 						}
+                 					}
+                 					if(parsedLocalTime < fromTime || parsedLocalTime > toTime)
+                 					{
+                 						fromHour = if(fromTime.getHour() > 12,fromTime.getHour() - 12,fromTime.getHour());
+                 						fromSuffix = if(fromTime.getHour() >= 12,"PM","AM");
+                 						fromMin = if(fromTime.getMinutes() < 10,"0" + fromTime.getMinutes(),fromTime.getMinutes());
+                 						storeStatusString = "Closed (Opens at " + fromHour + ":" + fromMin + " " + fromSuffix + ")";
+                 					}
+                 					else
+                 					{
+                 						isOpened = true;
+                 						toHour = if(toTime.getHour() > 12,toTime.getHour() - 12,if(toTime.getHour() == 0,12,toTime.getHour()));
+                 						toSuffix = if(toTime.getHour() >= 12,"PM","AM");
+                 						toMin = if(toTime.getMinutes() < 10,"0" + toTime.getMinutes(),toTime.getMinutes());
+                 						storeStatusString = "Open (Closes at " + toHour + ":" + toMin + " " + toSuffix + ")";
+                 					}
+                 					break;
+                 				}
+                 			}
+                 			overview.put("operating_status",storeStatusString);
+                 			overview.put("is_open",isOpened);
+                 			overview.put("latitude",storeRow.Lat);
+                 			overview.put("longitude",storeRow.Long);
+                 			// Store Detail View
+                 			detail = Map();
+                 			header = Map();
+                 			header.put("title",storeRow.Restaurant_Name);
+                 			// 			storeImage = Map();
+                 			// 			storeImage.put("report_name","All_Stores");
+                 			// 			storeImage.put("field_name","Home_Image");
+                 			// 			storeImage.put("image_refernce_id",storeRow.Loyalty_Reference.toString());
+                 			//storeImage.put("image_src",thisapp.imageUrl.getstoreimageurl(storeRow.ID.tostring()));
+                 			header.put("image_src",thisapp.imageUrl.getstoreimageurl(storeRow.ID.tostring()));
+                 			detail.put("header",header);
+                 			// Basic Section
+                 			basic = Map();
+                 			basic.put("location_name",overview.get("location_name"));
+                 			basic.put("location_icon",overview.get("location_icon"));
+                 			basic.put("review_value",overview.get("review_value"));
+                 			basic.put("review_count",overview.get("review_count"));
+                 			basic.put("phone",overview.get("phone"));
+                 			basic.put("phone_icon",overview.get("phone_icon"));
+                 			basic.put("direction_text",overview.get("direction_text"));
+                 			basic.put("direction_icon",overview.get("direction_icon"));
+                 			basic.put("duration",overview.get("duration"));
+                 			basic.put("destination",overview.get("destination"));
+                 			basic.put("timing_text",overview.get("operating_status"));
+                 			detail.put("basic_section",basic);
+                 			// Timings Section
+                 			timing_section = Map();
+                 			timing_section.put("title","Timings");
+                 			unsorted_timing_list = list();
+                 			// Step 1: Collect all timing entries
+                 			for each  t in storeRow.Operating_Hourse
+                 			{
+                 				days_list = t.Days;
+                 				openTime = t.Opening_Hrs.toString();
+                 				closeTime = t.Closing_Hourse.toString();
+                 				for each  day in days_list
+                 				{
+                 					timingEntry = Map();
+                 					timingEntry = Map();
+                 					timingEntry.put("day",day);
+                 					timingEntry.put("opening_time",openTime);
+                 					// First
+                 					timingEntry.put("closing_time",closeTime);
+                 					// Second
+                 					unsorted_timing_list.add(timingEntry);
+                 				}
+                 			}
+                 			// Step 2: Sort by weekday order
+                 			ordered_days = {"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"};
+                 			timing_list = list();
+                 			for each  day in ordered_days
+                 			{
+                 				for each  t in unsorted_timing_list
+                 				{
+                 					if(t.get("day") == day)
+                 					{
+                 						timing_list.add(t);
+                 					}
+                 				}
+                 			}
+                 			timing_section.put("timings_list",timing_list);
+                 			detail.put("timing_section",timing_section);
+                 			// Amenities Section
+                 			amenities = Map();
+                 			amenities.put("title","Amenities");
+                 			amenity_list = list();
+                 			for each  amenity in storeRow.Amenities1
+                 			{
+                 				activeamn = Amenities[ID == amenity];
+                 				//info activeamn.Amenity_Type;
+                 				a = Map();
+                 				a.put("amenity_name",activeamn.Amenity_Type);
+                 				a.put("amenity_icon",thisapp.imageUrl.getammenitiesImageurl(activeamn.ID.tostring()));
+                 				//thisapp.fileManagement.processImageUrl(activeamn.Icon));
+                 				amenity_list.add(a);
+                 			}
+                 			//info amenity_list ;
+                 			amenities.put("amenities_list",amenity_list);
+                 			detail.put("amenities_section",amenities);
+                 			// Final Assembly
+                 			store.put("store_overview",overview);
+                 			store.put("store_detail_view",detail);
+                 			storeList.add(store);
+                 		}
+                 	}
+                 	// Filter Section
+                 	filter = Map();
+                 	filterHeader = Map();
+                 	filterHeader.put("title","Filter Stores");
+                 	filter.put("header",filterHeader);
+                 	filter_list = list();
+                 	filter1 = Map();
+                 	filter1.put("filter_option_title","Store hours");
+                 	storeHoursList = list();
+                 	storeHoursList.add("Open 24/7");
+                 	storeHoursList.add("Open now");
+                 	filter1.put("filter_option_list",storeHoursList);
+                 	filter_list.add(filter1);
+                 	filter.put("filter_list",filter_list);
+                 	footer = Map();
+                 	footer.put("reset_button_name","Reset all");
+                 	footer.put("apply_button_name","Apply filter");
+                 	filter.put("footer",footer);
+                 	// Final Response
+                 	result.put("store_view_title","Our Stores");
+                 	result.put("search_hint_text","Search stores, area or street name");
+                 	result.put("search_store_not_found_string","No stores found");
+                 	result.put("stores",storeList);
+                 	result.put("filter_section",filter);
+                 	response.put("result",result);
+                 	response.put("code",3000);
+                 	return result;
+                 }
+				 int storemanagement.getRestaurantByID(String restaurantCode)
+                 {
+                 	restaurant = New_Restaurant[Restaurant_Code == restaurantCode];
+                 	if(restaurant.count() > 0)
+                 	{
+                 		return restaurant.ID;
+                 	}
+                 	return 0;
+                 }
+				 string storemanagement.getstorebyid(int storeid)
+                 {
+                 	return New_Restaurant[ID == storeid].Restaurant_Name;
+                 }
+				 list storemanagement.getStoreExcludeItems(string storeid)
+                 {
+                 	exclude_list = List();
+                 	curr_date = now;
+                 	for each  item in Items_list[Restaurant_Name.Store_ID == storeid && RecStatus == true]
+                 	{
+                 		if(item.Status == "Permanently Unavailable")
+                 		{
+                 			exclude_list.addAll(item.Items_to_be_exclude);
+                 		}
+                 		if(item.Status == "Remove from Active Sales" && item.from_date < curr_date && item.to_date > curr_date)
+                 		{
+                 			exclude_list.removeAll(item.Items_to_be_exclude);
+                 			exclude_list.addAll(item.Items_to_be_exclude);
+                 		}
+                 	}
+                 	return exclude_list;
+                 }
+				 string storemanagement.getStoreType(string storetypename)
+                 {
+                 	return Store_Category[Category_Name == storetypename].ID.toString();
+                 }
+				 list storemanagement.getstroreordertype(int storeid)
+                 {
+                 	return New_Restaurant[ID == storeid].Facilities;
+                 }
+				 void storemanagement.sss()
+                 {
+                 }
+				 map timedistance.getDistanceAndTime(string store_lat, string store_lng, string customer_lat, string customer_lng)
+                 {
+                 	api_key = ""; // Google Maps API key removed - set via secure config
+                 	// Replace with your API key
+                 	result = Map();
+                 	dist_url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + customer_lat + "," + customer_lng + "&destinations=" + store_lat + "," + store_lng + "&key=" + api_key;
+                 	dist_response = getUrl(dist_url).toMap();
+                 	if(dist_response.get("status") == "OK")
+                 	{
+                 		rows = dist_response.get("rows").toJSONList();
+                 		elements = rows.get(0).get("elements").toJSONList();
+                 		if(elements.get(0).get("status") == "OK")
+                 		{
+                 			result.put("distance_km",elements.get(0).get("distance").get("text"));
+                 			result.put("duration_min",elements.get(0).get("duration").get("text"));
+                 		}
+                 		else
+                 		{
+                 			result.put("distance_km","N/A");
+                 			result.put("duration_min","N/A");
+                 		}
+                 	}
+                 	else
+                 	{
+                 		result.put("distance_km","Distance error: " + dist_response.get("status"));
+                 		result.put("duration_min","Distance error");
+                 	}
+                 	return result;
+                 }
+			 }
+		 }
+
+
+		workflow
+		{
+		form
+		{
+			Fileupload as "Fileupload"
+			{
+				type =  form
+				form = Serving_Coordinates
+
+				record event = on add or edit
+
+				on user input of File_Upload
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											fileContent = input.File_Upload.content;
+										input.Coordinates_JSON = thisapp.latlongfromcsv.getLatlongFromCSV(fileContent);
+						)
+					}
+				}
+
+			}
+			getrestaurent as "getrestaurent"
+			{
+				type =  form
+				form = Upload_Delivery_Coordinates
+
+				record event = on add or edit
+
+				on load
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											disable Restaurant_Name;
+										disable R_id;
+										hide R_id;
+										disable Store;
+										input.Restaurant_Name = New_Restaurant[ID == toNumber(input.R_id)].Restaurant_Name;
+										//input.Store = New_Restaurant[ID == toNumber(input.R_id)].Store_Name;
+						)
+					}
+				}
+
+			}
+			getlatlong as "getlatlong"
+			{
+				type =  form
+				form = Upload_Delivery_Coordinates
+
+				record event = on add or edit
+
+				on user input of Coordinates_File
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											disable Delivery_Coordinates;
+										input.Delivery_Coordinates = thisapp.latlongfromcsv.getLatlongFromCSV(input.Coordinates_File.content);
+						)
+					}
+				}
+
+			}
+			savelatlong as "savelatlong"
+			{
+				type =  form
+				form = New_Restaurant
+
+				record event = on add or edit
+
+				on success
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											//input.Lat = input.Address.latitude;
+										//input.Long = input.Address.longitude;
+						)
+					}
+				}
+
+			}
+			disabledlatlongbox as "disabledlatlongbox"
+			{
+				type =  form
+				form = New_Restaurant
+
+				record event = on add or edit
+
+				on load
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											//hide Lat;
+										//hide Long;
+						)
+					}
+				}
+
+			}
+			getItemsForExclude as "getItemsForExclude"
+			{
+				type =  form
+				form = New_Restaurant
+
+				record event = on add or edit
+
+				on load
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											
+						)
+					}
+				}
+
+			}
+			checkauthkey as "checkauthkey"
+			{
+				type =  form
+				form = Items_list
+
+				record event = on add or edit
+
+				on validate
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											// Check if a matching key exists for the given Restaurant_Name and Auth_Key
+										//matching_keys_count = Key_Generater[Restaurant_Name == input.Restaurant_Name && Auth_Key == input.Auth_Key && User_Name == //input.Username].count();
+										//if(matching_keys_count <= 0)
+										//{
+										//alert "Wrong key! Please use the correct key to perform this operation.";
+										//cancel submit;
+										//}
+						)
+					}
+				}
+
+			}
+			validateuser as "validateuser"
+			{
+				type =  form
+				form = Authorization_Popup
+
+				record event = on add or edit
+
+				on validate
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											// Check if a matching key exists for the given Restaurant_Name and Auth_Key
+										restid = Key_Generater[Auth_Key == input.Pass_Key && User_Name == input.Username].Restaurant_Name;
+										userid = Key_Generater[Auth_Key == input.Pass_Key && User_Name == input.Username].ID;
+										// If no matching key is found, cancel the submission and show an error message
+										if(restid <= 0)
+										{
+											alert "Wrong key! Please use the correct key to perform this operation.";
+											cancel submit;
+										}
+										else
+										{
+											openUrl("#Report:All_Restaurants?restid=" + restid + "&uid=" + userid,"popup window");
+										}
+						)
+					}
+				}
+
+			}
+			clearkey as "clearkey"
+			{
+				type =  form
+				form = Items_list
+
+				record event = on add or edit
+
+				on load
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											//input.Auth_Key = null;
+										//input.Username = null;
+										hide RecStatus;
+										hide UpdatedOn;
+										hide UpdatedBy;
+						)
+					}
+				}
+
+			}
+			checkuser as "checkuser"
+			{
+				type =  form
+				form = Items_list
+
+				record event = on delete
+
+				on validate
+				{
+				}
+
+			}
+			checkitemsdetailbeforesav as "checkitemsdetailbeforesave"
+			{
+				type =  form
+				form = Items_list
+
+				record event = on add
+
+				on validate
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											//itemscount = Items_list[Restaurant_Name == input.Restaurant_Name && Status_old == true].count();
+										//if(itemscount > 0)
+										//{
+										//alert "This Item  already exists in the list. To create a new entry, please change the status of this record through the 'Edit' option.";
+										//cancel submit;
+										//}
+						)
+					}
+				}
+
+			}
+			checkvalidation as "checkvalidation"
+			{
+				type =  form
+				form = Items_list
+
+				record event = on edit
+
+				on validate
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											//activeCount = Items_list[Restaurant_Name == input.Restaurant_Name && Status_old == true].count();
+										//if(input.Status_old == true)
+										//{
+										//if(activeCount > 0)
+										//{
+										//alert "This item is in active state, so please deactivate the previous entry before activating this.";
+										//cancel submit;
+										//}
+										//}
+										//else
+										//{
+										//activeRecord = Items_list[Restaurant_Name == input.Restaurant_Name && Status_old == true];
+										//if(activeRecord.count() > 0 && activeRecord.ID == input.ID)
+										//{
+										//return;
+										//}
+										//}
+						)
+					}
+				}
+
+			}
+			readexcel as "readexcel"
+			{
+				type =  form
+				form = UploadOpeningClosingTime
+
+				record event = on add or edit
+
+				on user input of File_upload
+				{
+				}
+
+			}
+			getopeningtime as "getopeningtime"
+			{
+				type =  form
+				form = UploadOpeningClosingTime
+
+				record event = on add or edit
+
+				on user input of File_upload
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											try 
+										{
+											fileContent = input.File_upload.content;
+											lines = fileContent.toList("\n");
+											if(lines.size() > 1)
+											{
+												header = lines.get(0).toList(",");
+												if(header.get(0).trim() != "StoreId")
+												{
+													info "missing header: " + header.get(0);
+												}
+												if(header.get(1).trim() != "OpeningTime")
+												{
+													info "missing header: " + header.get(1);
+												}
+												if(header.get(2).trim() != "ClosingTime")
+												{
+													info "missing header: " + header.get(2);
+												}
+												for each  line in lines.subList(1,lines.size())
+												{
+													if(line != "")
+													{
+														try 
+														{
+															row = line.toList(",");
+															if(row.size() == header.size())
+															{
+																storeId = row.get(0).trim();
+																openingTime = row.get(1).trim();
+																closingTime = row.get(2).trim();
+																//info storeId + " | " + openingTime + " | " + closingTime;
+																store_record = New_Restaurant[Store_ID == storeId];
+																if(store_record != null)
+																{
+																	try 
+																	{
+																		if(input.optclear == true)
+																		{
+																			store_record.Operating_Hourse.clear();
+																		}
+																		rows_collection = Collection();
+																		r1 = New_Restaurant.Operating_Hourse();
+																		r1.Opening_Hrs=openingTime;
+																		r1.Closing_Hourse=closingTime;
+																		if(input.rdDays == "Weekdays(Mon-Fri)")
+																		{
+																			r1.Days={"Monday","Tuesday","Wednesday","Thursday","Friday"};
+																		}
+																		if(input.rdDays == "Weekend(Sat-Sun)")
+																		{
+																			r1.Days={"Saturday","Sunday"};
+																		}
+																		rows_collection.insert(r1);
+																		store_record.Operating_Hourse.insert(rows_collection);
+																	}
+																	catch (e)
+																	{
+																		info "Error inserting into subform: " + e;
+																	}
+																}
+																else
+																{
+																	info "No matching StoreId found for " + storeId;
+																}
+															}
+														}
+														catch (e)
+														{
+															info "Error processing row: " + line + " | Error: " + e;
+														}
+													}
+												}
+											}
+										}
+										catch (e)
+										{
+											info "An error occurred: " + e;
+										}
+						)
+					}
+				}
+
+			}
+			showhideduration as "showhideduration"
+			{
+				type =  form
+				form = Items_list
+
+				record event = on add or edit
+
+				on user input of Status
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											hide from_date;
+										hide to_date;
+										hide Exclusion_Periods;
+										if(input.Status == "Remove from Active Sales")
+										{
+											show from_date;
+											show to_date;
+											show Exclusion_Periods;
+										}
+						)
+					}
+				}
+
+			}
+			hideexclusionpanel as "hideexclusionpanel"
+			{
+				type =  form
+				form = Items_list
+
+				record event = on add or edit
+
+				on load
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											hide from_date;
+										hide to_date;
+										hide Exclusion_Periods;
+										if(Status == "Permanently Unavailable")
+										{
+											hide from_date;
+											hide to_date;
+											hide Exclusion_Periods;
+										}
+										if(Status == "Remove from Active Sales")
+										{
+											show from_date;
+											show to_date;
+											show Exclusion_Periods;
+										}
+						)
+					}
+				}
+
+			}
+			durationdisplay as "durationdisplay"
+			{
+				type =  form
+				form = Items_list
+
+				record event = on add or edit
+
+				on load
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											if(Status == "Permanently Unavailable")
+										{
+											hide from_date;
+											hide to_date;
+										}
+										if(Status == "Remove from Active Sales")
+										{
+											show from_date;
+											show to_date;
+										}
+						)
+					}
+				}
+
+			}
+			finduniqueedays as "finduniqueedays"
+			{
+				type =  form
+				form = New_Restaurant
+
+				record event = on add or edit
+
+				on add row of Operating_Hourse
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											existing_days = List();
+										available_days = List();
+										for each  n_row in input.Operating_Hourse
+										{
+											existing_days.add(n_row.Days);
+											// Assuming 'Day' is the field for day selection
+										}
+										//info existing_days;
+										// days_list = List();
+										// days_list.add("Monday");
+										// days_list.add("Tuesday");
+										// days_list.add("Wednesday");
+										// days_list.add("Thursday");
+										// days_list.add("Friday");
+										// days_list.add("Saturday");
+										// days_list.add("Sunday");
+										lis = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
+										lis.removeAll(existing_days.get(0));
+										//info lis;
+										clear row.Days;
+										row.Days:ui.add(lis);
+						)
+					}
+				}
+
+			}
+			getaddressonlat as "getaddressonlat"
+			{
+				type =  form
+				form = New_Restaurant
+
+				record event = on add or edit
+
+				on user input of Lat
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											input.Address.latitude = input.Lat;
+										input.Address.longitude = input.Long;
+										info input.Address;
+						)
+					}
+				}
+
+			}
+			getaddressonlong as "getaddressonlong"
+			{
+				type =  form
+				form = New_Restaurant
+
+				record event = on add or edit
+
+				on user input of Long
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											input.Address.latitude = input.Lat;
+										input.Address.longitude = input.Long;
+										info input.Address;
+						)
+					}
+				}
+
+			}
+			getimagedimension as "getimagedimension"
+			{
+				type =  form
+				form = New_Restaurant
+
+				record event = on add or edit
+
+				on user input of Home_Image
+				{
+				}
+
+			}
+		}
+
+
+
+
+
+
+		functions
+		{
+			Add_polygon as "Add polygon"
+			{
+				type =  functions
+				form = New_Restaurant
+				execution type = for each record	
+				on start
+				{
+					actions 
+					{
+					on click
+					(
+						openUrl("https://www.google.com/maps/d/u/0/","popup window");
+					)
+					}
+				}
+			}
+			uploadcoordinates as "uploadcoordinates"
+			{
+				type =  functions
+				form = New_Restaurant
+				execution type = for each record	
+				on start
+				{
+					actions 
+					{
+					on click
+					(
+						openUrl("#Form:Upload_Delivery_Coordinates?R_id=" + input.ID,"popup window");
+					)
+					}
+				}
+			}
+			deleterecord as "deleterecord"
+			{
+				type =  functions
+				form = Items_list
+				execution type = for each record	
+				on start
+				{
+					actions 
+					{
+					on click
+					(
+						//delete from Items_list [ ID == input.ID  ];
+										lstitems = Items_list[ID == input.ID];
+										for each  item in lstitems
+										{
+											item.RecStatus=false;
+											item.UpdatedBy=zoho.loginuser;
+											item.UpdatedOn=zoho.currentdate.toString();
+										}
+					)
+					}
+				}
+			}
+		}
+	}
+	share_settings
+	{
+			"Read"
+			{
+				name = "Read"
+				type = Users_Permissions
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This profile will have read permission for all components\n"
+			}
+			"Write"
+			{
+				name = "Write"
+				type = Users_Permissions
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This profile will have write permission for all components\n"
+			}
+			"Developer"
+			{
+				name = "Developer"
+				type = Developer
+				permissions = {Chat:false, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "Developer\n"
+			}
+			"Administrator"
+			{
+				name = "Administrator"
+				type = Users_Permissions
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This profile will have all the permissions.\n"
+			}
+			"Customer"
+			{
+				name = "Customer"
+				type = Customer_Portal
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This is the default profile having only add and view permission.\n"
+			}
+			roles
+			{
+				"CEO"
+				{
+					description = "User belonging to this role can access data of all other users."
+				}
+			}
+	}
+
+
+	web
+	{
+		forms
+		{
+			form Amenities
+			{
+				label placement = left
+			}
+			form App_Icons
+			{
+				label placement = left
+			}
+			form Area
+			{
+				label placement = left
+			}
+			form Property_Type
+			{
+				label placement = left
+			}
+			form Authorization_Popup
+			{
+				label placement = left
+			}
+			form Upload_Delivery_Coordinates
+			{
+				label placement = left
+			}
+			form Display_Flow_Image
+			{
+				label placement = left
+			}
+			form Items_list
+			{
+				label placement = left
+			}
+			form Facilities
+			{
+				label placement = left
+			}
+			form Flow_Diagram
+			{
+				label placement = left
+			}
+			form Key_Generater
+			{
+				label placement = left
+			}
+			form New_Restaurant
+			{
+				label placement = left
+			}
+			form Serving_Coordinates
+			{
+				label placement = left
+			}
+			form Store_Category
+			{
+				label placement = left
+			}
+			form UploadOpeningClosingTime
+			{
+				label placement = left
+			}
+		}
+		reports
+		{
+			report Restaurants_Report
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Brand_Lookup.Name as "Brand"
+								Market_Lookup as "Market"
+								Area_Lookup as "Area"
+								Store_ID as "Store ID"
+								Restaurant_Code as "Restaurant ID"
+								Restaurant_Name as "Restaurant"
+								Home_Image as "Image"
+								Phone_Number as "Phone"
+								Lat as "Latitude"
+								Long as "Longitude"
+								Store_Opening_Date as "Open Date"
+								Operating_Hourse.Days as "Operating Hours"
+								"Upload Coordinates"
+								"Open Polygon" as "GenerateCoordinates"
+								Property_Type_Lookup.Property_Type as "Asset Type"
+								Amenities1 as "Amenities"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							Edit   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Brand_Lookup as "Brand"
+								Market_Lookup as "Market"
+								Restaurant_Name as "Restaurant"
+								Property_Type_Lookup as "Property Type"
+								Channel
+								Home_Image as "Image"
+								Store_ID as "Store ID"
+								Store_Name as "Store Name"
+								Restaurant_Code as "Restaurant ID"
+								Lat as "Latitude"
+								Long as "Longitude"
+								Google_Location as "Google Location"
+								Store_Opening_Date as "Open Date"
+								Operating_Hourse.Days as "Operating Hours"
+								Area_Lookup as "Area"
+								Rating
+								Address
+								Phone_Number as "Phone"
+								isActive
+								Image_Dimension as "Image Dimension"
+								Store_Type1 as "Store Category"
+								Amenities1 as "Amenities"
+								Facilities
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Restaurent_Types
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Property_Type as "Asset Type"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Property_Type as "Asset Type"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Coordinates1
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								File_Upload as "Cordinates File"
+								Name
+								Description
+								Coordinates_JSON as "Coordinates JSON"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								File_Upload as "Cordinates File"
+								Name
+								Description
+								Coordinates_JSON as "Coordinates JSON"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report Upload_Delivery_Coordinates_Report
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Restaurant_Name as "Restaurant Name"
+								Store
+								Location_Name as "Location Name"
+								Delivery_Coordinates as "Delivery Coordinates"
+								isActive
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Restaurant_Name as "Restaurant Name"
+								Coordinates_File as "Coordinates File"
+								Delivery_Coordinates as "Delivery Coordinates"
+								Location_Name as "Location Name"
+								isActive
+								R_id as "Restaurant Id"
+								Store
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report Key_Generater_Report
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								User_Name as "User Name"
+								Auth_Key as "Auth Key"
+								Restaurant_Name as "Restaurant Name"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							Edit   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Auth_Key as "Auth Key"
+								User_Name as "User Name"
+								Restaurant_Name as "Restaurant Name"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report Items_eport
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								"Mark Available" as "Operation"
+								Restaurant_Name.Brand_Lookup as "Brand"
+								Restaurant_Name.Market_Lookup as "Market"
+								Restaurant_Name as "Name"
+								Items_to_be_exclude as "Items"
+								Status as "Detail"
+								from_date as "From"
+								to_date as "To"
+								RecStatus as "Status"
+								Added_User as "Added By"
+								Added_Time as "Added On"
+								UpdatedBy as "Updated by"
+								UpdatedOn as "Updated on"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+							)
+						)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Restaurant_Name as "Name"
+								Items_to_be_exclude as "Items"
+								Market_Lookup as "Market"
+								Brand_Lookup as "Brand"
+								Status as "Detail"
+								to_date as "To"
+								from_date as "From"
+								RecStatus as "Status"
+								UpdatedBy as "Updated by"
+								UpdatedOn as "Updated on"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report Authorization_Popup_Report
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Username
+								Pass_Key as "Pass Key"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Username
+								Pass_Key as "Pass Key"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report UploadOpeningClosingTime_Report
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								File_upload as "File upload"
+								rdDays as "Days"
+								optclear as "Clear Previous Operating Hours"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								File_upload as "File upload"
+								rdDays as "Days"
+								optclear as "Clear Previous Operating Hours"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Areas
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Area_Name as "Area Name"
+								Market
+								Code
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Area_Name as "Area Name"
+								Market
+								Code
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report Exclusion_History
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Brand_Lookup as "Brand"
+								Market_Lookup as "Market"
+								Restaurant_Name as "Name"
+								Items_to_be_exclude as "Items"
+								Status as "Detail"
+								from_date as "From"
+								to_date as "To"
+								RecStatus as "Status"
+								Added_User as "Added By"
+								Added_Time as "Added on"
+								UpdatedBy as "Updated by"
+								UpdatedOn as "Updated on"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+							)
+						)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Market_Lookup as "Market"
+								Restaurant_Name as "Name"
+								Status as "Detail"
+								Brand_Lookup as "Brand"
+								Items_to_be_exclude as "Items"
+								from_date as "From"
+								to_date as "To"
+								RecStatus as "Status"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Flow_Diagrams
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Flow_Image as "Flow Image"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Flow_Image as "Flow Image"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Display_Flow_Images
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report Display_Flow
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Flow_Image as "Flow Image"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Flow_Image as "Flow Image"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report Store_Category_Report
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Brand
+								Category_Number as "Category Number"
+								Category_Name as "Category Name"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Category_Number as "Category Number"
+								Category_Name as "Category Name"
+								Brand
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Store_Amenities
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Amenity_Number as "Amenity Number"
+								Amenity_Type as "Amenity Type"
+								Icon
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Amenity_Number as "Amenity Number"
+								Amenity_Type as "Amenity Type"
+								Icon
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Facilities
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Facility_Number as "Facility Number"
+								Facility_Type as "Facility Type"
+								Activity as "Activity Status"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Facility_Type as "Facility Type"
+								Facility_Number as "Facility Number"
+								Activity as "Activity Status"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_App_Icons
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Icon_Type as "Icon Type"
+								Name
+								Icon
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Icon_Type as "Icon Type"
+								Name
+								Icon
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Restaurant_Images
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Home_Image as "Image"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Market_Lookup as "Market"
+								Brand_Lookup as "Brand"
+								Channel
+								Area_Lookup as "Area"
+								Loyalty_Reference as "Loyalty Reference"
+								Restaurant_Name as "Restaurant Name"
+								Store_ID as "Store ID"
+								Store_Type1 as "Store Category"
+								Home_Image as "Image"
+								Facilities
+								Store_Name as "Store Name"
+								Restaurant_Code as "Restaurant Code"
+								Property_Type_Lookup as "Property Type"
+								isActive
+								Lat as "Latitude"
+								Google_Location as "Google Location"
+								Phone_Number as "Phone"
+								Rating
+								Long as "Longitude"
+								Address
+								Store_Opening_Date as "Open Date"
+								Image_Dimension as "Image Dimension"
+								Amenities1 as "Amenities"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Restaurant
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Market_Lookup as "Market"
+								Brand_Lookup as "Brand"
+								Channel
+								Area_Lookup as "Area"
+								Loyalty_Reference as "Loyalty Reference"
+								Restaurant_Name as "Restaurant Name"
+								Store_ID as "Store ID"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Market_Lookup as "Market"
+								Brand_Lookup as "Brand"
+								Channel
+								Area_Lookup as "Area"
+								Loyalty_Reference as "Loyalty Reference"
+								Restaurant_Name as "Restaurant Name"
+								Store_ID as "Store ID"
+								Store_Type1 as "Store Category"
+								Home_Image as "Image"
+								Facilities
+								Store_Name as "Store Name"
+								Restaurant_Code as "Restaurant Code"
+								Property_Type_Lookup as "Property Type"
+								isActive
+								Lat as "Latitude"
+								Google_Location as "Google Location"
+								Phone_Number as "Phone"
+								Rating
+								Long as "Longitude"
+								Address
+								Store_Opening_Date as "Open Date"
+								Image_Dimension as "Image Dimension"
+								Amenities1 as "Amenities"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+		}
+		menu
+		{
+			unused
+			{
+				form  Flow_Diagram
+				{
+					icon = "weather-fog"
+				}
+				report All_Flow_Diagrams
+				{
+					icon = "weather-fog"
+				}
+				report Display_Flow
+				{
+					icon = "weather-fog"
+				}
+				form  New_Restaurant
+				{
+					icon = "users-2-child"
+				}
+				form  Property_Type
+				{
+					icon = "tech-2-keyboard-wireless"
+				}
+				page Polygon_Page
+				{
+					icon = "design-shape-polygon"
+				}
+				form  Serving_Coordinates
+				{
+					icon = "travel-swiss-knife"
+				}
+				report All_Coordinates1
+				{
+					icon = "travel-world"
+				}
+				form  Upload_Delivery_Coordinates
+				{
+					icon = "shopping-delivery"
+				}
+				page MapWidget
+				{
+					icon = "design-window-paragraph"
+				}
+				form  Key_Generater
+				{
+					icon = "tech-2-sim-card"
+				}
+				report Key_Generater_Report
+				{
+					icon = "tech-2-sim-card"
+				}
+				form  Authorization_Popup
+				{
+					icon = "ui-1-bold-add"
+				}
+				report Authorization_Popup_Report
+				{
+					icon = "business-laptop-71"
+				}
+				report UploadOpeningClosingTime_Report
+				{
+					icon = "business-laptop-71"
+				}
+				form  Area
+				{
+					icon = "business-building"
+				}
+				form  Display_Flow_Image
+				{
+					icon = "tech-mobile-camera"
+				}
+				report All_Display_Flow_Images
+				{
+					icon = "design-image"
+				}
+				form  Store_Category
+				{
+					icon = "tech-desktop"
+				}
+				form  Amenities
+				{
+					icon = "shopping-shop-location"
+				}
+				form  Facilities
+				{
+					icon = "travel-church"
+				}
+				report All_App_Icons
+				{
+					icon = "tech-desktop"
+				}
+				form  App_Icons
+				{
+					icon = "design-app"
+				}
+			}
+			space Space
+			{
+				displayname = "Space"
+				icon = "tech-desktop"
+
+				section Architecture
+				{
+					displayname = "Architecture"
+					icon = "weather-fog"
+					page PgDisplay_Flow
+					{
+						icon = "weather-fog"
+					}
+				}
+				section Restaurants
+				{
+					displayname = "Restaurants"
+					icon = "shopping-shop-location"
+					page Restaurant_Page
+					{
+						icon = "food-barbecue-15"
+					}
+				}
+				section Product_Exclusion
+				{
+					displayname = "Product Exclusion"
+					icon = "design-bullet-list-68"
+					form  Items_list
+					{
+						icon = "ui-3-filter-check"
+					}
+					report Items_eport
+					{
+						icon = "business-laptop-71"
+					}
+					report Exclusion_History
+					{
+						icon = "shopping-receipt-list-43"
+					}
+				}
+				section Global
+				{
+					displayname = "Global"
+					icon = "ui-1-settings-gear-63"
+					report All_Restaurent_Types
+					{
+						icon = "tech-2-keyboard-wireless"
+					}
+					report All_Areas
+					{
+						icon = "tech-2-firewall"
+					}
+				}
+				section Polygon_Page
+				{
+					displayname = "Polygon Page"
+					icon = "design-shape-polygon"
+				}
+				section Coordinates1
+				{
+					displayname = "Coordinates"
+					icon = "tech-2-socket-uk"
+				}
+				section Setup
+				{
+					displayname = "Setup"
+					icon = "ui-1-settings"
+					report Upload_Delivery_Coordinates_Report
+					{
+						icon = "tech-2-l-location"
+					}
+				}
+				section MapWidget
+				{
+					displayname = "MapWidget"
+					icon = "tech-desktop"
+				}
+				section Key_Management
+				{
+					displayname = "Key Management"
+					icon = "tech-2-sim-card"
+				}
+				section Authorization_Popup
+				{
+					displayname = "Authorization Popup"
+					icon = "tech-desktop"
+				}
+				section UploadOpeningClosingTime
+				{
+					displayname = "UploadOpeningClosingTime"
+					icon = "tech-desktop"
+				}
+				section Areas
+				{
+					displayname = "Areas"
+					icon = "tech-remote"
+				}
+				section Restaurant_Page
+				{
+					displayname = "Restaurant Page"
+					icon = "food-barbecue-15"
+				}
+				section Display_Flow_Images
+				{
+					displayname = "Display Flow Images"
+					icon = "design-image"
+				}
+				section ZC_App_Preferences
+				{
+					displayname = "App Preferences"
+					icon = "design-app"
+					systemcomponent
+					{
+						type = localization
+						displayname = "Language Selection"
+						icon = "education-language"
+					}
+					systemcomponent
+					{
+						type = connection
+						displayname = "Connection"
+						icon = "tech-2-connection"
+					}
+				}
+				section ZC_Approvals
+				{
+					displayname = "Approvals"
+					icon = "ui-2-hourglass"
+					systemcomponent
+					{
+						type = approval
+						approval status = pending
+						displayname = "Pending Tasks"
+						icon = "ui-2-hourglass"
+					}
+					systemcomponent
+					{
+						type = approval
+						approval status = completed
+						displayname = "Completed Tasks"
+						icon = "design-todo"
+					}
+				}
+				section SharedAnalytics_Section
+				{
+					type = shared_user_report_section
+					displayname = "Reports"
+					icon = "business-chart-bar-33"
+				}
+				section Store_Category
+				{
+					displayname = "Store Category"
+					icon = "tech-desktop"
+					report Store_Category_Report
+					{
+						icon = "tech-desktop"
+					}
+				}
+				section Store_Amenities
+				{
+					displayname = "Store Amenities"
+					icon = "shopping-shop-location"
+					report All_Store_Amenities
+					{
+						icon = "tech-desktop"
+					}
+				}
+				section Facilities
+				{
+					displayname = "Facilities"
+					icon = "travel-church"
+					report All_Facilities
+					{
+						icon = "tech-desktop"
+					}
+				}
+					report Restaurants_Report
+					{
+						icon = "shopping-list"
+					}
+					form  UploadOpeningClosingTime
+					{
+						icon = "ui-1-bold-add"
+					}
+				section New_Section
+				{
+					displayname = "New"
+					icon = "users-2-child"
+					report All_Restaurant_Images
+					{
+						icon = "users-2-child"
+					}
+					report All_Restaurant
+					{
+						icon = "users-2-child"
+					}
+				}
+			}
+			space Space_2
+			{
+				displayname = "Space 2"
+				icon = "objects-spaceship"
+
+			}
+			preference
+			{
+				icon
+				{
+					style = outline
+					show = {section,component}
+				}
+			}
+		}
+		customize
+		{
+			new theme = 11
+			font = "lato"
+			color options
+			{
+				menu color = "#eeeeee"
+				header color = "#eeeeee"
+				name = "custom_color_6"
+				brand color = "#e12222"
+				type = "custom"
+				sub menu color = "#e7e7e7"
+			}
+			logo
+			{
+				preference = "none"
+				placement = "left"
+			}
+		}
+	}
+	phone
+	{
+		forms
+		{
+			form Amenities
+			{
+				label placement = auto
+			}
+			form App_Icons
+			{
+				label placement = auto
+			}
+			form Area
+			{
+				label placement = auto
+			}
+			form Property_Type
+			{
+				label placement = auto
+			}
+			form Authorization_Popup
+			{
+				label placement = auto
+			}
+			form Upload_Delivery_Coordinates
+			{
+				label placement = auto
+			}
+			form Display_Flow_Image
+			{
+				label placement = auto
+			}
+			form Items_list
+			{
+				label placement = auto
+			}
+			form Facilities
+			{
+				label placement = auto
+			}
+			form Flow_Diagram
+			{
+				label placement = auto
+			}
+			form Key_Generater
+			{
+				label placement = auto
+			}
+			form New_Restaurant
+			{
+				label placement = auto
+			}
+			form Serving_Coordinates
+			{
+				label placement = auto
+			}
+			form Store_Category
+			{
+				label placement = auto
+			}
+			form UploadOpeningClosingTime
+			{
+				label placement = auto
+			}
+		}
+		customize
+		{
+			layout = slidingpane
+			font = "default"
+			style = "3"
+			color options
+			{
+				color = amethyst
+			}
+			logo
+			{
+				preference = "none"
+			}
+		}
+	}
+	tablet
+	{
+		forms
+		{
+			form Amenities
+			{
+				label placement = auto
+			}
+			form App_Icons
+			{
+				label placement = auto
+			}
+			form Area
+			{
+				label placement = auto
+			}
+			form Property_Type
+			{
+				label placement = auto
+			}
+			form Authorization_Popup
+			{
+				label placement = auto
+			}
+			form Upload_Delivery_Coordinates
+			{
+				label placement = auto
+			}
+			form Display_Flow_Image
+			{
+				label placement = auto
+			}
+			form Items_list
+			{
+				label placement = auto
+			}
+			form Facilities
+			{
+				label placement = auto
+			}
+			form Flow_Diagram
+			{
+				label placement = auto
+			}
+			form Key_Generater
+			{
+				label placement = auto
+			}
+			form New_Restaurant
+			{
+				label placement = auto
+			}
+			form Serving_Coordinates
+			{
+				label placement = auto
+			}
+			form Store_Category
+			{
+				label placement = auto
+			}
+			form UploadOpeningClosingTime
+			{
+				label placement = auto
+			}
+		}
+		customize
+		{
+			layout = slidingpane
+			font = "default"
+			style = "3"
+			color options
+			{
+				color = amethyst
+			}
+			logo
+			{
+				preference = "none"
+			}
+		}
+	}
+	translation
+{
+{"Language_Settings":{"LANGAGUE_WITH_LOGIN":"browser"}}
+}
+}

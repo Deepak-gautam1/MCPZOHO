@@ -1,0 +1,1754 @@
+/*
+ * Author       : rtbidigitalassets_americanafood
+ * Generated on : 27-Aug-2026 09:24:47
+ * Version      : 1.0
+ */
+ application "Global Configuration"
+ {
+ 	date format = "dd-MMM-yyyy"
+ 	time zone = "Asia/Dubai"
+ 	time format = "24-hr"
+
+ 	forms
+	{
+		form Brand
+		{
+			success message = "Brand Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Brand_Name
+			(
+    			type = text
+				displayname = "Brand Name"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Brand_ID
+			(
+    			type = text
+				displayname = "Brand ID"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Brand_Short
+			(
+    			type = text
+				displayname = "Brand Short"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Logo
+			(
+    			type = image
+				source  = file
+				aspect ratio = original
+				camera = primary
+				show gallery = true
+				switch camera = true
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Market_Brand1
+			(
+				type = list	
+				displayname = "Market Brand"
+				values  = Market.ID
+    			displayformat = [Market]
+				sortorder = ascending
+				height = 60px
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Channel
+		{
+			success message = "Channel Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Channel
+			(
+    			type = text
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Global_ID
+			(
+				type = number
+				displayname = "Global ID"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Market
+		{
+			success message = "Market Id Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Market
+			(
+    			type = text
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Market_ID
+			(
+    			type = text
+				displayname = "Market ID"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Market_Short
+			(
+    			type = text
+				displayname = "Market Short "
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			International_Dialling_Code
+			(
+    			type = text
+				displayname = "International Dialling Code"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Flag
+			(
+    			type = image
+				source  = file
+				aspect ratio = original
+				camera = primary
+				show gallery = true
+				switch camera = true
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Currency_Market
+			(
+    			type = text
+				displayname = "Currency"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Nationality
+		{
+			success message = "Nationality Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Name
+			(
+    			type = text
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Short_Name
+			(
+    			type = text
+				displayname = "Short Name"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			isActive
+			(
+    			type = checkbox
+				initial value = false
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Organization
+		{
+			success message = "Data Added Successfully!"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Name
+			(
+    			type = text
+				initial value = "Americana"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Logo
+			(
+    			type = image
+				source  = file
+				aspect ratio = original
+				camera = primary
+				show gallery = true
+				switch camera = true
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Serve_Type
+		{
+			displayname = "Serve Type"
+			success message = "Data Added Successfully!"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Serve_Type_Number
+			(
+				type = number
+				displayname = "Serve Type Number"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Serve_Type
+			(
+    			type = text
+				displayname = "Serve Type"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Sub_Channel
+		{
+			displayname = "Sub Channel"
+			success message = "Sub Channel Added Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Market
+			(
+				type = picklist	
+				values  = Market.ID
+    			displayformat = [Market]
+				sortorder = ascending
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Channel
+			(
+				type = picklist	
+				values  = Channel.ID
+    			displayformat = [Channel]
+				sortorder = ascending
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Sub_Channel
+			(
+    			type = text
+				displayname = "Sub Channel"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Local_ID
+			(
+				type = number
+				displayname = "Local ID"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+		form Tender
+		{
+			success message = "Data Added Successfully!"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Name
+			(
+    			type = text
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Department
+			(
+    			type = text
+				displayname = "Department ID"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Class_ID
+			(
+    			type = text
+				displayname = "Class ID"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+	}
+	reports
+	{
+		list Organization_Report
+		{
+			displayName = "Organization Report"
+			show all rows from Organization    
+			(
+				Name
+				Logo
+			)
+		}
+		default list All_Market
+		{
+			displayName = "All Market"
+			show all rows from Market    
+			(
+				Market
+				Market_ID as "Market ID"
+				Market_Short as "Market Short "
+				International_Dialling_Code as "International Dialling Code"
+				Flag
+				Currency_Market as "Currency"
+				ID
+			)
+		}
+		default list All_Brands
+		{
+			displayName = "All Brands"
+			show all rows from Brand    
+			(
+				Brand_ID as "Brand ID"
+				Brand_Name as "Brand Name"
+				Brand_Short as "Brand Short"
+				Logo
+				Market_Brand1 as "Market Brand"
+			)
+		}
+		default list Tender_Report
+		{
+			displayName = "Tender Report"
+			show all rows from Tender    
+			(
+				Name
+				Department as "Department ID"
+				Class_ID as "Class ID"
+			)
+		}
+		default list Serve_Type_Report
+		{
+			displayName = "Serve Type Report"
+			show all rows from Serve_Type    
+			(
+				Serve_Type_Number as "Serve Type Number"
+				Serve_Type as "Serve Type"
+			)
+		}
+		default list All_Channels
+		{
+			displayName = "All Channels"
+			show all rows from Channel    
+			(
+				Channel
+				Global_ID as "Global ID"
+			)
+		}
+		default list All_Sub_Channels
+		{
+			displayName = "All Sub Channels"
+			show all rows from Sub_Channel    
+			(
+				Market
+				Channel
+				Sub_Channel as "Sub Channel"
+				Local_ID as "Local ID"
+			)
+		}
+		default list All_Nationalities
+		{
+			displayName = "All Nationalities"
+			show all rows from Nationality    
+			(
+				Name
+				Short_Name as "Short Name"
+				isActive
+			)
+		}
+	}
+
+
+		 functions
+		 {
+			 Deluge
+			 {
+				 list fetchrecord.getallbrands(string brandid)
+                 {
+                 	lstbrand = List();
+                 	allbrands = Brand[Brand_ID == brandid];
+                 	for each  b in allbrands
+                 	{
+                 		m = Map();
+                 		m.put("ID",b.ID);
+                 		m.put("Brand_Name",b.Brand_Name);
+                 		// Add all necessary fields
+                 		m.put("Brand_ID",b.Brand_ID);
+                 		m.put("Brand_Short",b.Brand_Short);
+                 		m.put("market",b.Market_Brand1);
+                 		m.put("countmarket",b.Market_Brand1.size());
+                 		// Add other fields as needed
+                 		lstbrand.add(m);
+                 	}
+                 	return lstbrand;
+                 }
+				 string fetchrecord.getallmarket(int marketid)
+                 {
+                 	return Market[ID == marketid].Market;
+                 }
+				 list fetchrecord.getbrandbyid(int brandid)
+                 {
+                 	lstbrand = List();
+                 	allbrands = Brand[ID == brandid];
+                 	for each  b in allbrands
+                 	{
+                 		m = Map();
+                 		m.put("ID",b.ID);
+                 		m.put("Brand_Name",b.Brand_Name);
+                 		m.put("Brand_ID",b.Brand_ID);
+                 		m.put("Brand_Short",b.Brand_Short);
+                 		m.put("market",b.Market_Brand1);
+                 		market_list = List();
+                 		for each  market in b.Market_Brand1
+                 		{
+                 			objmarket = Market[ID == market.ID];
+                 			market_map = Map();
+                 			market_map.put("ID",objmarket.ID);
+                 			market_map.put("Market_Name",objmarket.Market);
+                 			// Adjust field name if different
+                 			market_list.add(market_map);
+                 		}
+                 		m.put("Markets",market_list);
+                 		m.put("countmarket",market_list.size());
+                 		lstbrand.add(m);
+                 	}
+                 	return lstbrand;
+                 }
+				 string fetchrecord.getcurrencybymarketid(int marketid)
+                 {
+                 	return Market[ID == marketid].Currency_Market;
+                 }
+				 list fetchrecord.getlstNationality()
+                 {
+                 	lstResponse = List();
+                 	lstOfNationality = Nationality[ID != 0 && isActive == true];
+                 	info lstOfNationality;
+                 	for each  nationality in lstOfNationality
+                 	{
+                 		resMap = Map();
+                 		resMap.put("ID",nationality.ID.tostring());
+                 		resMap.put("name",nationality.Name);
+                 		resMap.put("short_name",nationality.Short_Name);
+                 		lstResponse.add(resMap);
+                 		// Add map into list
+                 	}
+                 	return lstResponse;
+                 }
+				 map fetchrecord.getmarketbydialingcode(string code)
+                 {
+                 	lstmarket = Market[International_Dialling_Code == code];
+                 	response = Map();
+                 	response.put("ID",lstmarket.ID);
+                 	response.put("market_full_name",lstmarket.Market);
+                 	response.put("market_short_name",lstmarket.Market_Short);
+                 	response.put("currency",lstmarket.Currency_Market);
+                 	response.put("market_id",lstmarket.Market_ID);
+                 	return response;
+                 }
+				 map fetchrecord.getmarketshortbyid(int id)
+                 {
+                 	result = Map();
+                 	m = Market[ID == id];
+                 	result.put("flag",ifnull(m.Flag,""));
+                 	result.put("international_dialling_code",ifnull(m.International_Dialling_Code,""));
+                 	result.put("market_short",ifnull(m.Market_Short,""));
+                 	return result;
+                 }
+				 map fetchrecord.getnationalitybyid(string id)
+                 {
+                 	lstResponse = List();
+                 	resMap = Map();
+                 	lstOfNationality = Nationality[ID == id.tolong()];
+                 	info lstOfNationality;
+                 	for each  nationality in lstOfNationality
+                 	{
+                 		resMap.put("ID",nationality.ID.tostring());
+                 		resMap.put("name",nationality.Name);
+                 		resMap.put("short_name",nationality.Short_Name);
+                 		//lstResponse.add(resMap);
+                 		// Add map into list
+                 	}
+                 	return resMap;
+                 }
+				 void signupmanagement.signupbonussettlement(int customer_id)
+                 {
+                 }
+			 }
+		 }
+
+
+	share_settings
+	{
+			"Read"
+			{
+				name = "Read"
+				type = Users_Permissions
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This profile will have read permission for all components\n"
+			}
+			"Write"
+			{
+				name = "Write"
+				type = Users_Permissions
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This profile will have write permission for all components\n"
+			}
+			"Developer"
+			{
+				name = "Developer"
+				type = Developer
+				permissions = {Chat:false, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "Developer Profile\n"
+			}
+			"Administrator"
+			{
+				name = "Administrator"
+				type = Users_Permissions
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This profile will have all the permissions.\n"
+			}
+			"Customer"
+			{
+				name = "Customer"
+				type = Customer_Portal
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This is the default profile having only add and view permission.\n"
+			}
+			roles
+			{
+				"CEO"
+				{
+					description = "User belonging to this role can access data of all other users."
+				}
+			}
+	}
+
+	customize
+	{
+		icon
+		{
+			text = "GLB"
+			background color = "#e64d4a"
+			foreground color = "#ffffff"
+		}
+	}
+
+	web
+	{
+		forms
+		{
+			form Brand
+			{
+				label placement = left
+			}
+			form Channel
+			{
+				label placement = left
+			}
+			form Market
+			{
+				label placement = left
+			}
+			form Nationality
+			{
+				label placement = left
+			}
+			form Organization
+			{
+				label placement = left
+			}
+			form Serve_Type
+			{
+				label placement = left
+			}
+			form Sub_Channel
+			{
+				label placement = left
+			}
+			form Tender
+			{
+				label placement = left
+			}
+		}
+		reports
+		{
+			report Organization_Report
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Name
+								Logo
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+								Add 
+								Print 
+								Import 
+								Export 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Print   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							Print   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Name
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Print 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Market
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Market
+								ID
+								Market_ID as "Market ID"
+								Market_Short as "Market Short "
+								International_Dialling_Code as "International Dialling Code"
+								Flag
+								Currency_Market as "Currency"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Market
+								Market_ID as "Market ID"
+								Market_Short as "Market Short "
+								International_Dialling_Code as "International Dialling Code"
+								Flag
+								Currency_Market as "Currency"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Brands
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Brand_ID as "Brand ID"
+								Brand_Name as "Brand Name"
+								Brand_Short as "Brand Short"
+								Logo
+								Market_Brand1 as "Market Brand"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Brand_ID as "Brand ID"
+								Brand_Name as "Brand Name"
+								Brand_Short as "Brand Short"
+								Logo
+								Market_Brand1 as "Market Brand"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report Tender_Report
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Name
+								Department as "Department ID"
+								Class_ID as "Class ID"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Name
+								Department as "Department ID"
+								Class_ID as "Class ID"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report Serve_Type_Report
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Serve_Type_Number as "Serve Type Number"
+								Serve_Type as "Serve Type"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Serve_Type_Number as "Serve Type Number"
+								Serve_Type as "Serve Type"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Channels
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Channel
+								Global_ID as "Global ID"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Channel
+								Global_ID as "Global ID"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Sub_Channels
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Market
+								Channel
+								Sub_Channel as "Sub Channel"
+								Local_ID as "Local ID"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Market
+								Channel
+								Sub_Channel as "Sub Channel"
+								Local_ID as "Local ID"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Nationalities
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Name
+								Short_Name as "Short Name"
+								isActive
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Name
+								Short_Name as "Short Name"
+								isActive
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+		}
+		menu
+		{
+			space Space
+			{
+				displayname = "Space"
+				icon = "objects-spaceship"
+
+				section Organization
+				{
+					displayname = "Organization"
+					icon = "tech-desktop"
+					form  Organization
+					{
+						icon = "tech-desktop"
+					}
+					report Organization_Report
+					{
+						icon = "business-laptop-71"
+					}
+				}
+				section App_Preferences
+				{
+					displayname = "App Preferences"
+					icon = "design-app"
+					systemcomponent
+					{
+						type = localization
+						displayname = "Language Selection"
+						icon = "education-language"
+					}
+					systemcomponent
+					{
+						type = connection
+						displayname = "Integrations"
+						icon = "tech-2-connection"
+					}
+				}
+				section Approvals
+				{
+					displayname = "Approvals"
+					icon = "ui-2-hourglass"
+					systemcomponent
+					{
+						type = approval
+						approval status = pending
+						displayname = "Pending Tasks"
+						icon = "ui-2-hourglass"
+					}
+					systemcomponent
+					{
+						type = approval
+						approval status = completed
+						displayname = "Completed Tasks"
+						icon = "design-todo"
+					}
+				}
+				section SharedAnalytics_Section
+				{
+					type = shared_user_report_section
+					displayname = "Reports"
+					icon = "business-chart-bar-33"
+				}
+				section Market
+				{
+					displayname = "Market"
+					icon = "shopping-stock"
+					form  Market
+					{
+						icon = "shopping-stock"
+					}
+					report All_Market
+					{
+						icon = "tech-desktop"
+					}
+				}
+				section Brands
+				{
+					displayname = "Brands"
+					icon = "clothes-makeup"
+					form  Brand
+					{
+						icon = "food-moka"
+					}
+					report All_Brands
+					{
+						icon = "tech-desktop"
+					}
+				}
+				section Tender
+				{
+					displayname = "Tender"
+					icon = "food-hob"
+					form  Tender
+					{
+						icon = "food-hob"
+					}
+					report Tender_Report
+					{
+						icon = "tech-desktop"
+					}
+				}
+				section Serve_Type
+				{
+					displayname = "Serve Type"
+					icon = "sport-tennis"
+					form  Serve_Type
+					{
+						icon = "sport-tennis"
+					}
+					report Serve_Type_Report
+					{
+						icon = "tech-desktop"
+					}
+				}
+				section Channels
+				{
+					displayname = "Channels"
+					icon = "tech-tv-old"
+					form  Channel
+					{
+						icon = "tech-tv-old"
+					}
+					report All_Channels
+					{
+						icon = "tech-desktop"
+					}
+				}
+				section Sub_Channels
+				{
+					displayname = "Sub Channels"
+					icon = "tech-tv-old"
+					form  Sub_Channel
+					{
+						icon = "tech-tv-old"
+					}
+					report All_Sub_Channels
+					{
+						icon = "tech-desktop"
+					}
+				}
+				section Nationalities
+				{
+					displayname = "Nationalities"
+					icon = "tech-desktop"
+					form  Nationality
+					{
+						icon = "travel-passport"
+					}
+					report All_Nationalities
+					{
+						icon = "tech-desktop"
+					}
+				}
+			}
+			preference
+			{
+				icon
+				{
+					style = outline
+				}
+			}
+		}
+		customize
+		{
+			new theme = 11
+			font = "lato"
+			color options
+			{
+				menu color = "#eeeeee"
+				header color = "#eeeeee"
+				name = "custom_color_6"
+				brand color = "#e12222"
+				type = "custom"
+				sub menu color = "#e7e7e7"
+			}
+			logo
+			{
+				preference = "company_logo"
+				placement = "left"
+			}
+		}
+	}
+	phone
+	{
+		forms
+		{
+			form Brand
+			{
+				label placement = auto
+			}
+			form Channel
+			{
+				label placement = auto
+			}
+			form Market
+			{
+				label placement = auto
+			}
+			form Nationality
+			{
+				label placement = auto
+			}
+			form Organization
+			{
+				label placement = auto
+			}
+			form Serve_Type
+			{
+				label placement = auto
+			}
+			form Sub_Channel
+			{
+				label placement = auto
+			}
+			form Tender
+			{
+				label placement = auto
+			}
+		}
+		customize
+		{
+			layout = slidingpane
+			font = "default"
+			style = "1"
+			color options
+			{
+				color = darkgrey
+			}
+			logo
+			{
+				preference = "company_logo"
+			}
+		}
+	}
+	tablet
+	{
+		forms
+		{
+			form Brand
+			{
+				label placement = auto
+			}
+			form Channel
+			{
+				label placement = auto
+			}
+			form Market
+			{
+				label placement = auto
+			}
+			form Nationality
+			{
+				label placement = auto
+			}
+			form Organization
+			{
+				label placement = auto
+			}
+			form Serve_Type
+			{
+				label placement = auto
+			}
+			form Sub_Channel
+			{
+				label placement = auto
+			}
+			form Tender
+			{
+				label placement = auto
+			}
+		}
+		customize
+		{
+			layout = slidingpane
+			font = "default"
+			style = "1"
+			color options
+			{
+				color = darkgrey
+			}
+			logo
+			{
+				preference = "company_logo"
+			}
+		}
+	}
+	translation
+{
+{"Language_Settings":{"LANGAGUE_WITH_LOGIN":"browser"}}
+}
+}

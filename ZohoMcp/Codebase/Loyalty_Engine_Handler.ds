@@ -1,0 +1,465 @@
+/*
+ * Author       : rtbidigitalassets_americanafood
+ * Generated on : 27-Aug-2026 09:25:36
+ * Version      : 1.0
+ */
+ application "Loyalty Engine Handler"
+ {
+ 	date format = "dd-MMM-yyyy"
+ 	time zone = "Asia/Dubai"
+ 	time format = "24-hr"
+
+ 	forms
+	{
+		form Loyalty_Engine
+		{
+			displayname = "Loyalty Engine"
+			success message = "Loyalty Engine Added Successfully"
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
+	}
+	reports
+	{
+		default list All_Loyalty_Engines
+		{
+			displayName = "All Loyalty Engines"
+			show all rows from Loyalty_Engine    
+		}
+	}
+
+
+		 functions
+		 {
+			 Deluge
+			 {
+				 map loyaltyEngineExecutionCall(Map requestParams)
+                 {
+                 	try 
+                 	{
+                 		brandID = requestParams.get("loyalty_brand").toLong();
+                 		if(brandID == 1)
+                 		{
+                 			return peets_coffee1.loyaltyEngine.executeLoyaltyProgramme(requestParams);
+                 		}
+                 		else if(brandID == 2)
+                 		{
+                 			return krispy_kreme.loyaltyEngine.executeLoyaltyProgramme(requestParams);
+                 		}
+                 		else
+                 		{
+                 			return {"message":"invalid brand value passeed"};
+                 		}
+                 	}
+                 	catch (e)
+                 	{
+                 		return {"message":"Error Occured, Please contact your developer"};
+                 	}
+                 }
+				 map TestEnvironment.loyaltyEngineTest()
+                 {
+                 	// 	ncrInput = {"requestParams":{"loyalty_brand":2,"type":1,"phone_number":"+971567048172"}};
+                 	// Loyalty Engine Cases \\
+                 	//Case 1: Normal Order
+                 	ncrInput = {"requestParams":{"loyalty_brand":2,"type":3,"phone_number":"+971567048172","transaction":{"order_id":randomNumber(100000,999999).toString(),"restaurant_id":"21999","items":{{"product_name":"Espresso","product_id":"680002","quantity":1,"price":"12"},{"product_name":"Lotus Biscoff","product_id":"780025","quantity":1,"price":"9"},{"product_name":"Hot Chocolate","product_id":"172092","quantity":1,"price":"22"}},"rewards":{"catalog_offer":null},"total_invoice_amount":"108","type":0}}};
+                 	// Case 2 : Order with simple Redemption items
+                 	/* 	 	 	ncrInput = {
+                 	  "requestParams": {
+                 		"loyalty_brand": 2,
+                 		"type": 3,
+                 		"phone_number": "+971567048172",
+                 		"transaction": {
+                 		  "order_id": randomNumber(100000, 999999).toString(),
+                 		  "restaurant_id": "21999",
+                 		  "items": [
+                 			{
+                 			  "product_name": "Espresso",
+                 			  "product_id": "680002",
+                 			  "quantity": 1,
+                 			  "price": "12"
+                 			},
+                 			{
+                 			  "product_name": "Lotus Biscoff",
+                 			  "product_id": "780025",
+                 			  "quantity": 1,
+                 			  "price": "9"
+                 			},
+                 			{
+                 			  "product_name": "Hot Chocolate",
+                 			  "product_id": "172092",
+                 			  "quantity": 1,
+                 			  "price": "22"
+                 			}
+                 		  ],
+                 		  "rewards": {
+                 			"catalog_offer": [
+                 			  {
+                 				"promotion_code": "1",
+                 				"redeemable_items": [
+                 				  {
+                 					"product_name": "Original Glazed Donut",
+                 					"product_id": "780001"
+                 				  }
+                 				]
+                 			  }
+                 			]
+                 		  },
+                 		  "total_invoice_amount": "43",
+                 		  "type": 0
+                 		}
+                 	  }
+                 	};  */
+                 	// Case 3 : Order with Multiple Redemption items
+                 	/* 	ncrInput = {
+                 	  "requestParams": {
+                 		"loyalty_brand": 2,
+                 		"type": 3,
+                 		"phone_number": "+971567048172",
+                 		"transaction": {
+                 		  "order_id": randomNumber(100000, 999999).toString(),
+                 		  "restaurant_id": "21999",
+                 		  "items": [
+                 			{
+                 			  "product_name": "Espresso",
+                 			  "product_id": "680002",
+                 			  "quantity": 1,
+                 			  "price": "12"
+                 			},
+                 			{
+                 			  "product_name": "Lotus Biscoff",
+                 			  "product_id": "780025",
+                 			  "quantity": 1,
+                 			  "price": "9"
+                 			},
+                 			{
+                 			  "product_name": "Hot Chocolate",
+                 			  "product_id": "172092",
+                 			  "quantity": 1,
+                 			  "price": "22"
+                 			}
+                 		  ],
+                 		  "rewards": {
+                 			"catalog_offer": [
+                 			  {
+                 				"promotion_code": "5",
+                 				"redeemable_items": [
+                 				  {
+                 					"product_name": "Original Glazed Donut",
+                 					"product_id": "780001"
+                 				  },
+                 				  {
+                 					"product_name": "Expresso",
+                 					"product_id": "680002"
+                 				  }
+                 				]
+                 			  }
+                 			]
+                 		  },
+                 		  "total_invoice_amount": "62",
+                 		  "type": 0
+                 		}
+                 	  }
+                 	}; */
+                 	//Case 4: Refund
+                 	// 	ncrInput = {"requestParams":{"type":3,"phone_number":"+971528012943","loyalty_brand":2,"transaction":{"order_id":"12312","restaurant_id":"21999","country":1,"items":{{"product_name":"Original Glazed","product_id":"780001","quantity":1.0,"price":"7"},{"product_name":"Chocolate Dream Cake","product_id":"780020","quantity":1.0,"price":"8"}},"rewards":{"catalog_offer":null},"total_invoice_amount":"15.0","type":0}}};
+                 	//{"requestParams":{"loyalty_brand":2,"type":4,"phone_number":"+971567048172","transaction":{"order_id":"459065","type":1}}};
+                 	responseDetails = invokeurl
+                 	[
+                 		url :"https://www.zohoapis.com/creator/custom/rtbidigitalassets_americanafood/loyalty-engine-handler?publickey=DTs2up9r3ewNDu6EQv7nsUp2v"
+                 		type :POST
+                 		parameters:ncrInput.toString()
+                 		headers:{"content-type":"application/json"}
+                 	];
+                 	return responseDetails;
+                 }
+			 }
+		 }
+
+
+	share_settings
+	{
+			"Read"
+			{
+				name = "Read"
+				type = Users_Permissions
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This profile will have read permission for all components\n"
+			}
+			"Write"
+			{
+				name = "Write"
+				type = Users_Permissions
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This profile will have write permission for all components\n"
+			}
+			"Developer"
+			{
+				name = "Developer"
+				type = Developer
+				permissions = {Chat:false, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "Developer Profile\n"
+			}
+			"Administrator"
+			{
+				name = "Administrator"
+				type = Users_Permissions
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This profile will have all the permissions.\n"
+			}
+			"Customer"
+			{
+				name = "Customer"
+				type = Customer_Portal
+				permissions = {Chat:true, Predefined:true, ApiAccess:true, PIIAccess:true, ePHIAccess:true}
+				description = "This is the default profile having only add and view permission.\n"
+			}
+			roles
+			{
+				"CEO"
+				{
+					description = "User belonging to this role can access data of all other users."
+				}
+			}
+	}
+
+
+	web
+	{
+		forms
+		{
+			form Loyalty_Engine
+			{
+				label placement = left
+			}
+		}
+		reports
+		{
+			report All_Loyalty_Engines
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+		}
+		menu
+		{
+			space Space
+			{
+				displayname = "Space"
+				icon = "tech-desktop"
+
+				section Loyalty_Engines
+				{
+					displayname = "Loyalty Engines"
+					icon = "weather-sun"
+					form  Loyalty_Engine
+					{
+						icon = "media-1-button-power"
+					}
+					report All_Loyalty_Engines
+					{
+						icon = "travel-world"
+					}
+				}
+				section ZC_App_Preferences
+				{
+					displayname = "App Preferences"
+					icon = "design-app"
+					systemcomponent
+					{
+						type = localization
+						displayname = "Language Selection"
+						icon = "education-language"
+					}
+					systemcomponent
+					{
+						type = connection
+						displayname = "Connection"
+						icon = "tech-2-connection"
+					}
+				}
+				section ZC_Approvals
+				{
+					displayname = "Approvals"
+					icon = "ui-2-hourglass"
+					systemcomponent
+					{
+						type = approval
+						approval status = pending
+						displayname = "Pending Tasks"
+						icon = "ui-2-hourglass"
+					}
+					systemcomponent
+					{
+						type = approval
+						approval status = completed
+						displayname = "Completed Tasks"
+						icon = "design-todo"
+					}
+				}
+				section SharedAnalytics_Section
+				{
+					type = shared_user_report_section
+					displayname = "Reports"
+					icon = "business-chart-bar-33"
+				}
+			}
+			preference
+			{
+				icon
+				{
+					style = outline
+					show = {section,component}
+				}
+			}
+		}
+		customize
+		{
+			new theme = 11
+			font = "lato"
+			color options
+			{
+				color = "1"
+			}
+			logo
+			{
+				preference = "none"
+				placement = "left"
+			}
+		}
+	}
+	phone
+	{
+		forms
+		{
+			form Loyalty_Engine
+			{
+				label placement = auto
+			}
+		}
+		customize
+		{
+			layout = slidingpane
+			font = "default"
+			style = "1"
+			color options
+			{
+				color = darkgrey
+			}
+			logo
+			{
+				preference = "none"
+			}
+		}
+	}
+	tablet
+	{
+		forms
+		{
+			form Loyalty_Engine
+			{
+				label placement = auto
+			}
+		}
+		customize
+		{
+			layout = slidingpane
+			font = "default"
+			style = "1"
+			color options
+			{
+				color = darkgrey
+			}
+			logo
+			{
+				preference = "none"
+			}
+		}
+	}
+	translation
+{
+{"Language_Settings":{"LANGAGUE_WITH_LOGIN":"browser"}}
+}
+}

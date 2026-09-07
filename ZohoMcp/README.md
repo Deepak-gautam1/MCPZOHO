@@ -4,6 +4,10 @@ An [MCP](https://modelcontextprotocol.io) server that connects Claude to a **Zoh
 application. Claude can discover the app's forms and reports, read and write records, and invoke
 standalone **Deluge** functions that you have published as Custom APIs.
 
+It also indexes the app's **source**. Drop the `.ds` exports into [`Codebase/`](#the-codebase-mirror)
+and Claude can read the Deluge itself — which function implements a rule, what a form's on-add
+workflow runs, which nightly jobs are active and what they sweep, and who calls whom across apps.
+
 It speaks MCP over **stdio**, so it drops straight into Claude Desktop's `mcpServers` config. All
 configuration is environment-variable driven — no credentials live in the source tree.
 
@@ -24,6 +28,33 @@ configuration is environment-variable driven — no credentials live in the sour
 | `zoho_creator_call_function` | Invokes a Deluge function published as a Custom API. |
 
 Every tool takes an optional `appLinkName`; when omitted it falls back to `ZOHO_APP_LINK_NAME`.
+
+### Source tools
+
+These read the `.ds` exports in `Codebase/`. No credentials, no network, no API quota.
+
+| Tool | What it does |
+| --- | --- |
+| `zoho_code_list_apps` | Which apps are mirrored, their link names and object counts. Start here. |
+| `zoho_code_outline` | Names and line ranges of forms, reports, pages, functions and automations. `detail=true` adds form field schemas and function signatures. |
+| `zoho_code_search` | Searches the Deluge and reports the **enclosing object** for every hit. |
+| `zoho_code_get_source` | The exact source of one object, or a line range. |
+| `zoho_code_list_automations` | Every workflow, schedule, batch job and button, with its trigger and active/inactive status. |
+| `zoho_code_call_graph` | Callers and callees of a Deluge function, across all exported apps. |
+
+### Live tools vs. source tools
+
+The `zoho_creator_*` tools answer **"what data is in the app right now"**. The `zoho_code_*` tools
+answer **"what does the app do"** — the rules that produced that data.
+
+Reach for the source tools whenever the question is about behaviour, because most of that
+behaviour is *invisible to the REST API*: form workflows, schedules and batch jobs are not exposed
+by any endpoint, and neither are private functions or commented-out code. `zoho_code_list_automations`
+is the only way to answer "what runs nightly" or "why did that stop happening".
+
+Two caveats. The mirror is a point-in-time export, so anything that turns on current data belongs
+to the live tools. And a question can need both: find the rule with `zoho_code_search`, then check
+what it actually did with `zoho_creator_get_records`.
 
 ### CRUD tools vs. the custom-function tool
 
@@ -331,16 +362,55 @@ npm run check             # syntax-check every source file
 Running `npm start` in a terminal is expected to sit silently after printing its startup line to
 stderr — it is waiting for an MCP client to speak to it over stdin.
 
+## The Codebase mirror
+
+The source tools read Zoho Creator's own **application export** format — the `.ds` files you get
+from *Settings → Export → Deluge script* in the Creator builder. Put them in `Codebase/`
+(or point `ZOHO_CODEBASE_DIR` elsewhere) and they are picked up automatically; the index is built
+on first use and rebuilt whenever a file changes, so re-exporting is the whole update procedure.
+
+`Codebase/apps.json` maps each export to its Creator link name:
+
+```json
+{
+  "exports": {
+    "Peets_Coffee_Rewards.ds": { "linkName": "test-peets-new", "owner": "…", "note": "…" }
+  },
+  "externalApps": {
+    "peets-coffee1": { "application": "Peet's Coffee", "note": "live app, not exported here" }
+  }
+}
+```
+
+It has to be maintained by hand, because a link name cannot be recovered from an export — Creator
+fixes it at app-creation time and it often bears no relation to the display name (*Peets Coffee
+Rewards* → `test-peets-new`). Everything still works without the file; `linkName` is just reported
+as `null`. Get the real values from `zoho_creator_list_applications`.
+
+**Two spellings of the same name.** The REST API uses the hyphenated link name
+(`test-peets-new`) and that is what `appLinkName` takes. Deluge cross-app calls use the same name
+with underscores (`test_peets_new`), since hyphens are not valid in an identifier. Store only the
+hyphenated form; the derived one is computed.
+
+`externalApps` names apps that the exported Deluge calls into but which are not in the folder, so
+`zoho_code_call_graph` can say *"trace stops here"* instead of reporting an unknown prefix — or,
+worse, silently resolving it to a similarly named export.
+
+---
+
 ## File layout
 
 ```
-PEETSMCP/
+ZohoMcp/
 ├── server.js              MCP server: tool registration and stdio transport
 ├── zohoClient.js          OAuth refresh, token cache, Creator REST API v2.1 calls
+├── codebase.js            Index over the .ds exports: outline, search, call graph
+├── delugeParser.js        Structural parser for Creator .ds application exports
 ├── loadEnv.js             Dependency-free .env.local/.env loader for local dev
 ├── doctor.mjs             Connection check: credentials, token, apps, forms, reports
 ├── get-refresh-token.mjs  One-shot grant-token -> refresh-token exchange
 ├── package.json
 ├── .env.example           Template for all environment variables
+├── Codebase/              Creator .ds exports + apps.json (link-name mapping)
 └── README.md
 ```

@@ -1,7 +1,7 @@
 {
   "name": "peetsmcp",
   "version": "1.0.0",
-  "description": "MCP server that connects Claude to Zoho Creator: read/write records and call custom Deluge functions.",
+  "description": "MCP server that connects Claude to Zoho Creator: read/write records, call custom Deluge functions, and search the app source exported from the Creator builder.",
   "type": "module",
   "main": "server.js",
   "bin": {
@@ -10,6 +10,8 @@
   "files": [
     "server.js",
     "zohoClient.js",
+    "codebase.js",
+    "delugeParser.js",
     "loadEnv.js",
     "doctor.mjs",
     "get-refresh-token.mjs",
@@ -20,7 +22,7 @@
     "start": "node server.js",
     "doctor": "node doctor.mjs",
     "get-refresh-token": "node get-refresh-token.mjs",
-    "check": "node --check server.js && node --check zohoClient.js && node --check loadEnv.js && node --check doctor.mjs && node --check get-refresh-token.mjs"
+    "check": "node --check server.js && node --check zohoClient.js && node --check codebase.js && node --check delugeParser.js && node --check loadEnv.js && node --check doctor.mjs && node --check get-refresh-token.mjs"
   },
   "keywords": [
     "mcp",
