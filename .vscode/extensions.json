@@ -1,0 +1,27 @@
+{
+  "recommendations": [
+    // Markdown / README preview
+    "shd101wyy.markdown-preview-enhanced",
+    "yzhang.markdown-all-in-one",
+    "manishsencha.readme-preview",
+    "davidanson.vscode-markdownlint",
+
+    // Icon / image preview
+    "vscode-icons-team.vscode-icons",
+    "kisstkondoros.vscode-gutter-preview",
+    "tyriar.luna-paint",
+    "simonsiefke.svg-preview",
+    "tomoki1207.pdf",
+
+    // JS/Node tooling
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens",
+    "usernamehw.errorlens",
+    "ritwickdey.liveserver",
+
+    // GitHub integration
+    "github.vscode-pull-request-github",
+    "github.vscode-github-actions"
+  ]
+}
