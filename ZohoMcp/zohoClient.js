@@ -15,6 +15,7 @@
  *   ZOHO_APP_LINK_NAME    - Default app link name when a call omits appLinkName
  *   ZOHO_ACCOUNTS_DOMAIN  - Default https://accounts.zoho.com  (data-centre specific)
  *   ZOHO_API_DOMAIN       - Default https://creator.zoho.com   (data-centre specific)
+ *   ZOHO_CUSTOM_API_DOMAIN - Default https://www.zohoapis.com  (host that serves Custom APIs)
  */
 
 import nodeFetch from "node-fetch";
@@ -30,6 +31,9 @@ const DEFAULT_TOKEN_TTL_SECONDS = 3600;
 
 const DEFAULT_ACCOUNTS_DOMAIN = "https://accounts.zoho.com";
 const DEFAULT_API_DOMAIN = "https://creator.zoho.com";
+// Custom APIs are not served under /api/v2.1 on creator.zoho.com; Zoho publishes them at
+// https://www.zohoapis.com/creator/custom/{owner}/{apiLinkName} (scope ZohoCreator.customapi.EXECUTE).
+const DEFAULT_CUSTOM_API_DOMAIN = "https://www.zohoapis.com";
 
 // ---------------------------------------------------------------------------
 // Config helpers
@@ -55,6 +59,10 @@ function accountsDomain() {
 
 function apiDomain() {
   return stripTrailingSlash(process.env.ZOHO_API_DOMAIN || DEFAULT_API_DOMAIN);
+}
+
+function customApiDomain() {
+  return stripTrailingSlash(process.env.ZOHO_CUSTOM_API_DOMAIN || DEFAULT_CUSTOM_API_DOMAIN);
 }
 
 /**
@@ -205,13 +213,14 @@ export async function getAccessToken() {
  * @param {unknown} [options.body]   JSON request body
  * @param {object} [options.headers] Extra headers
  * @param {boolean} [options.withHeaders] Resolve to { payload, headers } instead of payload
+ * @param {string} [options.domain]  Host to call instead of ZOHO_API_DOMAIN
  * @returns {Promise<unknown>} Parsed JSON body (or raw text when not JSON)
  */
 export async function zohoRequest(
   path,
-  { method = "GET", query, body, headers, withHeaders = false } = {}
+  { method = "GET", query, body, headers, withHeaders = false, domain } = {}
 ) {
-  const url = new URL(`${apiDomain()}${path}`);
+  const url = new URL(`${domain ?? apiDomain()}${path}`);
   if (query) {
     for (const [key, value] of Object.entries(query)) {
       if (value === undefined || value === null || value === "") continue;
@@ -477,10 +486,11 @@ export async function deleteRecord({ appLinkName, reportLinkName, recordId } = {
 
 /**
  * Invoke a standalone Deluge function published as a Custom API.
- * GET or POST /api/v2.1/{owner}/{app}/custom/{apiLinkName}
+ * GET or POST {ZOHO_CUSTOM_API_DOMAIN}/creator/custom/{owner}/{apiLinkName}
+ * Needs the OAuth scope ZohoCreator.customapi.EXECUTE on the refresh token.
  *
  * @param {object} opts
- * @param {string} [opts.appLinkName]
+ * @param {string} [opts.appLinkName]   Unused: Custom APIs are account-level, not app-level
  * @param {string} opts.apiLinkName     Link name given to the Custom API
  * @param {"GET"|"POST"} [opts.method]  Must match the method the API was published with
  * @param {object} [opts.params]        Query-string arguments (usable by both methods)
@@ -503,9 +513,14 @@ export async function callCustomFunction({
     throw new Error("body cannot be sent with a GET custom-function call; use params instead.");
   }
 
-  return zohoRequest(`${creatorBasePath(appLinkName)}/custom/${encodeURIComponent(api)}`, {
+  const owner = requireEnv(
+    "ZOHO_ACCOUNT_OWNER",
+    "It is the account-owner segment of your Creator app URL."
+  );
+  return zohoRequest(`/creator/custom/${encodeURIComponent(owner)}/${encodeURIComponent(api)}`, {
     method: httpMethod,
     query: params,
     body: httpMethod === "POST" ? (body ?? {}) : undefined,
+    domain: customApiDomain(),
   });
 }
