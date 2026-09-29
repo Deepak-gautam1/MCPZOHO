@@ -47,14 +47,17 @@ function requireEnv(name, hint) {
   const value = process.env[name];
   if (!value || !String(value).trim()) {
     throw new Error(
-      `Missing required environment variable ${name}.` + (hint ? ` ${hint}` : "")
+      `Missing required environment variable ${name}.` +
+        (hint ? ` ${hint}` : ""),
     );
   }
   return String(value).trim();
 }
 
 function accountsDomain() {
-  return stripTrailingSlash(process.env.ZOHO_ACCOUNTS_DOMAIN || DEFAULT_ACCOUNTS_DOMAIN);
+  return stripTrailingSlash(
+    process.env.ZOHO_ACCOUNTS_DOMAIN || DEFAULT_ACCOUNTS_DOMAIN,
+  );
 }
 
 function apiDomain() {
@@ -62,7 +65,9 @@ function apiDomain() {
 }
 
 function customApiDomain() {
-  return stripTrailingSlash(process.env.ZOHO_CUSTOM_API_DOMAIN || DEFAULT_CUSTOM_API_DOMAIN);
+  return stripTrailingSlash(
+    process.env.ZOHO_CUSTOM_API_DOMAIN || DEFAULT_CUSTOM_API_DOMAIN,
+  );
 }
 
 /**
@@ -74,12 +79,13 @@ export function resolveAppLinkName(appLinkName) {
   if (explicit) return explicit;
 
   const fallback =
-    process.env.ZOHO_APP_LINK_NAME && String(process.env.ZOHO_APP_LINK_NAME).trim();
+    process.env.ZOHO_APP_LINK_NAME &&
+    String(process.env.ZOHO_APP_LINK_NAME).trim();
   if (fallback) return fallback;
 
   throw new Error(
     "No Zoho Creator app link name available. Pass appLinkName with the request, " +
-      "or set the ZOHO_APP_LINK_NAME environment variable as a default."
+      "or set the ZOHO_APP_LINK_NAME environment variable as a default.",
   );
 }
 
@@ -87,14 +93,15 @@ export function resolveAppLinkName(appLinkName) {
 function creatorBasePath(appLinkName) {
   const owner = requireEnv(
     "ZOHO_ACCOUNT_OWNER",
-    "It is the account-owner segment of your Creator app URL."
+    "It is the account-owner segment of your Creator app URL.",
   );
   const app = resolveAppLinkName(appLinkName);
   return `/api/v2.1/${encodeURIComponent(owner)}/${encodeURIComponent(app)}`;
 }
 
 function requireArg(value, name) {
-  const trimmed = value === undefined || value === null ? "" : String(value).trim();
+  const trimmed =
+    value === undefined || value === null ? "" : String(value).trim();
   if (!trimmed) throw new Error(`${name} is required.`);
   return trimmed;
 }
@@ -118,11 +125,11 @@ async function requestNewAccessToken() {
   const params = new URLSearchParams({
     refresh_token: requireEnv(
       "ZOHO_REFRESH_TOKEN",
-      "Generate it by exchanging a Self Client grant token (see README)."
+      "Generate it by exchanging a Self Client grant token (see README).",
     ),
     client_id: requireEnv(
       "ZOHO_CLIENT_ID",
-      "Create a Self Client at https://api-console.zoho.com."
+      "Create a Self Client at https://api-console.zoho.com.",
     ),
     client_secret: requireEnv("ZOHO_CLIENT_SECRET"),
     grant_type: "refresh_token",
@@ -141,7 +148,9 @@ async function requestNewAccessToken() {
       body: params.toString(),
     });
   } catch (err) {
-    throw new Error(`Could not reach the Zoho token endpoint (${tokenUrl}): ${err.message}`);
+    throw new Error(
+      `Could not reach the Zoho token endpoint (${tokenUrl}): ${err.message}`,
+    );
   }
 
   const rawBody = await response.text();
@@ -151,26 +160,29 @@ async function requestNewAccessToken() {
   } catch {
     throw new Error(
       `Zoho token endpoint returned a non-JSON response (HTTP ${response.status}): ` +
-        rawBody.slice(0, 500)
+        rawBody.slice(0, 500),
     );
   }
 
   // Zoho answers OAuth failures with HTTP 200 and an "error" field, so check both.
   if (!response.ok || payload.error) {
-    const reason = payload.error || `HTTP ${response.status} ${response.statusText}`;
+    const reason =
+      payload.error || `HTTP ${response.status} ${response.statusText}`;
     throw new Error(
       `Zoho token refresh failed: ${reason}. ` +
         "Check ZOHO_CLIENT_ID / ZOHO_CLIENT_SECRET / ZOHO_REFRESH_TOKEN, and confirm " +
-        "ZOHO_ACCOUNTS_DOMAIN matches the data centre the credentials were issued in."
+        "ZOHO_ACCOUNTS_DOMAIN matches the data centre the credentials were issued in.",
     );
   }
 
   if (!payload.access_token) {
-    throw new Error(`Zoho token refresh returned no access_token: ${rawBody.slice(0, 500)}`);
+    throw new Error(
+      `Zoho token refresh returned no access_token: ${rawBody.slice(0, 500)}`,
+    );
   }
 
   const ttlSeconds = Number(
-    payload.expires_in_sec ?? payload.expires_in ?? DEFAULT_TOKEN_TTL_SECONDS
+    payload.expires_in_sec ?? payload.expires_in ?? DEFAULT_TOKEN_TTL_SECONDS,
   );
   // expires_in is sometimes delivered in milliseconds; normalise to seconds.
   const normalisedTtl = ttlSeconds > 100_000 ? ttlSeconds / 1000 : ttlSeconds;
@@ -218,7 +230,7 @@ export async function getAccessToken() {
  */
 export async function zohoRequest(
   path,
-  { method = "GET", query, body, headers, withHeaders = false, domain } = {}
+  { method = "GET", query, body, headers, withHeaders = false, domain } = {},
 ) {
   const url = new URL(`${domain ?? apiDomain()}${path}`);
   if (query) {
@@ -253,7 +265,9 @@ export async function zohoRequest(
       response = await send(await getAccessToken());
     }
   } catch (err) {
-    throw new Error(`Zoho request ${method} ${url.pathname} failed: ${err.message}`);
+    throw new Error(
+      `Zoho request ${method} ${url.pathname} failed: ${err.message}`,
+    );
   }
 
   const rawBody = await response.text();
@@ -267,10 +281,11 @@ export async function zohoRequest(
   }
 
   if (!response.ok) {
-    const detail = typeof payload === "string" ? payload : JSON.stringify(payload);
+    const detail =
+      typeof payload === "string" ? payload : JSON.stringify(payload);
     throw new Error(
       `Zoho API ${method} ${url.pathname} returned ${response.status} ${response.statusText}: ` +
-        String(detail).slice(0, 1500)
+        String(detail).slice(0, 1500),
     );
   }
 
@@ -298,7 +313,7 @@ export async function zohoRequest(
 export async function listApplications() {
   const owner = requireEnv(
     "ZOHO_ACCOUNT_OWNER",
-    "It is the account-owner segment of your Creator app URL."
+    "It is the account-owner segment of your Creator app URL.",
   );
   return zohoRequest(`/api/v2.1/${encodeURIComponent(owner)}/applications`);
 }
@@ -334,7 +349,7 @@ export async function listReports({ appLinkName } = {}) {
 export async function listFields({ appLinkName, formLinkName } = {}) {
   const form = requireArg(formLinkName, "formLinkName");
   return zohoRequest(
-    `${creatorBasePath(appLinkName)}/form/${encodeURIComponent(form)}/fields`
+    `${creatorBasePath(appLinkName)}/form/${encodeURIComponent(form)}/fields`,
   );
 }
 
@@ -384,7 +399,7 @@ export async function getRecords({
     if (!ALLOWED_MAX_RECORDS.includes(limit)) {
       throw new Error(
         `maxRecords must be one of ${ALLOWED_MAX_RECORDS.join(", ")} - Zoho rejects ` +
-          `any other value (received ${maxRecords}).`
+          `any other value (received ${maxRecords}).`,
       );
     }
     query.max_records = limit;
@@ -395,7 +410,7 @@ export async function getRecords({
 
   const { payload, headers: responseHeaders } = await zohoRequest(
     `${creatorBasePath(appLinkName)}/report/${encodeURIComponent(report)}`,
-    { method: "GET", query, headers, withHeaders: true }
+    { method: "GET", query, headers, withHeaders: true },
   );
 
   const nextCursor = responseHeaders.get("record_cursor");
@@ -422,7 +437,11 @@ export async function getAllRecords({ maxPages = 50, ...opts } = {}) {
   let pages = 0;
 
   do {
-    const page = await getRecords({ ...opts, maxRecords: opts.maxRecords ?? 1000, recordCursor: cursor });
+    const page = await getRecords({
+      ...opts,
+      maxRecords: opts.maxRecords ?? 1000,
+      recordCursor: cursor,
+    });
     const rows = Array.isArray(page.data) ? page.data : [];
     records.push(...rows);
     cursor = page.record_cursor;
@@ -444,29 +463,41 @@ export async function getAllRecords({ maxPages = 50, ...opts } = {}) {
 export async function addRecord({ appLinkName, formLinkName, data } = {}) {
   const form = requireArg(formLinkName, "formLinkName");
   if (!data || typeof data !== "object") {
-    throw new Error("data is required and must be an object of fieldLinkName -> value.");
+    throw new Error(
+      "data is required and must be an object of fieldLinkName -> value.",
+    );
   }
 
-  return zohoRequest(`${creatorBasePath(appLinkName)}/form/${encodeURIComponent(form)}`, {
-    method: "POST",
-    body: { data },
-  });
+  return zohoRequest(
+    `${creatorBasePath(appLinkName)}/form/${encodeURIComponent(form)}`,
+    {
+      method: "POST",
+      body: { data },
+    },
+  );
 }
 
 /**
  * Update a single record by id.
  * PATCH /api/v2.1/{owner}/{app}/report/{reportLinkName}/{recordId}
  */
-export async function updateRecord({ appLinkName, reportLinkName, recordId, data } = {}) {
+export async function updateRecord({
+  appLinkName,
+  reportLinkName,
+  recordId,
+  data,
+} = {}) {
   const report = requireArg(reportLinkName, "reportLinkName");
   const id = requireArg(recordId, "recordId");
   if (!data || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("data is required and must be an object of fieldLinkName -> value.");
+    throw new Error(
+      "data is required and must be an object of fieldLinkName -> value.",
+    );
   }
 
   return zohoRequest(
     `${creatorBasePath(appLinkName)}/report/${encodeURIComponent(report)}/${encodeURIComponent(id)}`,
-    { method: "PATCH", body: { data } }
+    { method: "PATCH", body: { data } },
   );
 }
 
@@ -474,13 +505,17 @@ export async function updateRecord({ appLinkName, reportLinkName, recordId, data
  * Delete a single record by id.
  * DELETE /api/v2.1/{owner}/{app}/report/{reportLinkName}/{recordId}
  */
-export async function deleteRecord({ appLinkName, reportLinkName, recordId } = {}) {
+export async function deleteRecord({
+  appLinkName,
+  reportLinkName,
+  recordId,
+} = {}) {
   const report = requireArg(reportLinkName, "reportLinkName");
   const id = requireArg(recordId, "recordId");
 
   return zohoRequest(
     `${creatorBasePath(appLinkName)}/report/${encodeURIComponent(report)}/${encodeURIComponent(id)}`,
-    { method: "DELETE" }
+    { method: "DELETE" },
   );
 }
 
@@ -507,20 +542,27 @@ export async function callCustomFunction({
   const httpMethod = String(method).toUpperCase();
 
   if (httpMethod !== "GET" && httpMethod !== "POST") {
-    throw new Error(`callCustomFunction supports GET or POST, received "${method}".`);
+    throw new Error(
+      `callCustomFunction supports GET or POST, received "${method}".`,
+    );
   }
   if (httpMethod === "GET" && body !== undefined) {
-    throw new Error("body cannot be sent with a GET custom-function call; use params instead.");
+    throw new Error(
+      "body cannot be sent with a GET custom-function call; use params instead.",
+    );
   }
 
   const owner = requireEnv(
     "ZOHO_ACCOUNT_OWNER",
-    "It is the account-owner segment of your Creator app URL."
+    "It is the account-owner segment of your Creator app URL.",
   );
-  return zohoRequest(`/creator/custom/${encodeURIComponent(owner)}/${encodeURIComponent(api)}`, {
-    method: httpMethod,
-    query: params,
-    body: httpMethod === "POST" ? (body ?? {}) : undefined,
-    domain: customApiDomain(),
-  });
+  return zohoRequest(
+    `/creator/custom/${encodeURIComponent(owner)}/${encodeURIComponent(api)}`,
+    {
+      method: httpMethod,
+      query: params,
+      body: httpMethod === "POST" ? (body ?? {}) : undefined,
+      domain: customApiDomain(),
+    },
+  );
 }
