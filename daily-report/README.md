@@ -24,6 +24,15 @@ Everything it reads from Zoho is read-only.
 `node daily-report.mjs history --from 2026-09-01 --to 2026-09-26 --tx <export> [--signups <export>] [--stores <export>]`
 builds transaction-only reports for days whose logs are gone.
 
+## Weekly brand summary
+
+A second scheduled task (`peets-weekly-brand-summary`, Mondays 9:00 AM India time) runs
+`node daily-report.mjs weekly`. That writes `weekly-<monday>.html`: a plain business summary of the
+last Monday–Sunday week, built from the daily summaries, with a week-on-week comparison. The task
+saves it as an **Outlook draft** to the brand team and never sends it; someone reviews and sends
+it. Outlook drafts made through the connector accept only plain HTML (no style attributes), so the
+tables are unstyled. `--end YYYY-MM-DD` builds the week ending on that Sunday.
+
 ## Store master
 
 `store-master.json` is the company store list, taken from the "For Loyalty" sheet of the
@@ -54,7 +63,7 @@ each day's sales per store, so a store can be compared with its own normal day.
 | Expiry | Expiration rows, job logs, bonus rows past validity still holding points | overdue points, catch-up failures |
 | Referrals | Referral bonus rows paired with sign-ups by second | bursts, 30-day volume, look-alike accounts |
 | NCR logs | `ncr_logs` without the tier-job noise | engine errors, CRM limit, sign-up failures |
-| App orders | Cart orders placed that day | failed, paid with no POS order id |
+| App orders | Cart orders placed that day | failed orders (warning); orders the middleware never confirmed with a POS order id (info, a middleware item) |
 | App usage | ApiLog by API type | account deletions |
 
 Customer phone numbers are masked in the report. Emails are only used to compare referral

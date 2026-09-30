@@ -200,6 +200,7 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
         <select id="monthSel" aria-label="Month"></select>
       </div>
       <select id="storeSel" aria-label="Restaurant"><option value="">All restaurants</option></select>
+      <select id="typeSel" aria-label="Order type"><option value="">All order types</option></select>
     </div>
   </div>
 </header>
@@ -220,7 +221,7 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
   const app = $("app");
   const S = {
     db: null, dbState: "loading", summaries: [], details: new Map(), loadingDetail: null,
-    view: "day", date: null, month: null, store: "", sev: "all", sort: { key: "sales", dir: -1 },
+    view: "day", date: null, month: null, store: "", otype: "", sev: "all", sort: { key: "sales", dir: -1 },
   };
 
   // ---------- formatting ----------
@@ -260,7 +261,7 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
   // ---------- preferences ----------
   const PREF = "rewards-daily-health";
   try { Object.assign(S, JSON.parse(localStorage.getItem(PREF) || "{}")); } catch (e) { /* storage blocked */ }
-  const savePrefs = () => { try { localStorage.setItem(PREF, JSON.stringify({ view: S.view, store: S.store, sev: S.sev })); } catch (e) { /* ignore */ } };
+  const savePrefs = () => { try { localStorage.setItem(PREF, JSON.stringify({ view: S.view, store: S.store, otype: S.otype, sev: S.sev })); } catch (e) { /* ignore */ } };
   const hash = location.hash.slice(1);
   if (/^\d{4}-\d{2}-\d{2}$/.test(hash)) { S.view = "day"; S.date = hash; }
   else if (/^\d{4}-\d{2}$/.test(hash)) { S.view = "month"; S.month = hash; }
@@ -323,20 +324,33 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
     }
     $("storeSel").innerHTML = `<option value="">All restaurants</option>` + [...groups].sort((a, b) => b[1].length - a[1].length)
       .map(([emirate, opts]) => `<optgroup label="${esc(emirate)}">${opts.join("")}</optgroup>`).join("");
+    const types = new Set(["POS", "Mobile/App"]);
+    for (const s of S.summaries) for (const t of (s.orderTypes && s.orderTypes.types) || []) types.add(t.type);
+    types.add("Non-Order");
+    $("typeSel").innerHTML = `<option value="">All order types</option>` + [...types].map((t) => `<option value="${esc(t)}"${t === S.otype ? " selected" : ""}>${esc(t)}</option>`).join("");
   }
+  /** The order-type slice of a summary: totals and restaurants, or null when the day has no order types. */
+  const typeSlice = (sum, t) => {
+    const ot = sum && sum.orderTypes;
+    if (!ot || !t || t === "Non-Order") return null;
+    return { total: (ot.types || []).find((x) => x.type === t) || { type: t, sales: 0, aed: 0, discount: 0, paid: 0, earned: 0, burned: 0, redemptions: 0, customers: 0 },
+      stores: (ot.stores || {})[t] || [] };
+  };
 
   $("viewDay").addEventListener("click", () => { S.view = "day"; savePrefs(); render(); });
   $("viewMonth").addEventListener("click", () => { S.view = "month"; if (S.date) S.month = S.date.slice(0, 7); savePrefs(); render(); });
   $("daySel").addEventListener("change", (e) => { S.date = e.target.value; render(); });
   $("monthSel").addEventListener("change", (e) => { S.month = e.target.value; render(); });
   $("storeSel").addEventListener("change", (e) => { S.store = e.target.value; savePrefs(); render(); });
+  $("typeSel").addEventListener("change", (e) => { S.otype = e.target.value; savePrefs(); render(); });
   $("prevDay").addEventListener("click", () => { const ds = dates(); const i = ds.indexOf(S.date); if (i < ds.length - 1) { S.date = ds[i + 1]; render(); } });
   $("nextDay").addEventListener("click", () => { const ds = dates(); const i = ds.indexOf(S.date); if (i > 0) { S.date = ds[i - 1]; render(); } });
 
   app.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-sev],[data-day],[data-sort],[data-store]");
+    const t = e.target.closest("[data-sev],[data-day],[data-sort],[data-store],[data-otype]");
     if (!t) return;
-    if (t.dataset.sev) { S.sev = t.dataset.sev; savePrefs(); render(); }
+    if (t.dataset.otype !== undefined) { S.otype = t.dataset.otype; savePrefs(); render(); }
+    else if (t.dataset.sev) { S.sev = t.dataset.sev; savePrefs(); render(); }
     else if (t.dataset.day) { S.date = t.dataset.day; S.view = "day"; savePrefs(); render(); window.scrollTo({ top: 0 }); }
     else if (t.dataset.sort) { const k = t.dataset.sort; S.sort = { key: k, dir: S.sort.key === k ? -S.sort.dir : -1 }; render(); }
     else if (t.dataset.store !== undefined) { S.store = t.dataset.store; savePrefs(); render(); }
@@ -435,6 +449,34 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
     return `<div class="scroll"><table><thead><tr>${th("name", "Restaurant", false)}${th("sales", "Sales")}${th("aed", "Invoiced")}${th("discount", "Discount")}${th("earned", "Pts earned")}${th("burned", "Pts burned")}${th("redemptions", "Redemptions")}${th("refunds", "Refunds")}${month ? th("days", "Days trading") : th("customers", "Customers")}</tr></thead><tbody>${body}</tbody></table></div>`;
   }
 
+  // ---------- order types (POS / Mobile/App / Non-Order), for one day or a month ----------
+  function orderTypesPanel(days) {
+    if (!days.length) return "";
+    const types = new Map(), kinds = new Map();
+    let nonRows = 0;
+    for (const s of days) {
+      for (const t of s.orderTypes.types || []) {
+        const e = types.get(t.type) || { type: t.type, sales: 0, aed: 0, paid: 0, earned: 0, burned: 0, redemptions: 0 };
+        for (const f of ["sales", "aed", "paid", "earned", "burned", "redemptions"]) e[f] += t[f] || 0;
+        types.set(t.type, e);
+      }
+      const no = s.orderTypes.nonOrder || {};
+      nonRows += no.rows || 0;
+      for (const k of no.kinds || []) { const e = kinds.get(k.kind) || { kind: k.kind, rows: 0, points: 0 }; e.rows += k.rows; e.points += k.points; kinds.set(k.kind, e); }
+    }
+    const total = [...types.values()].reduce((a, t) => a + t.sales, 0) || 1;
+    const rows = [...types.values()].sort((a, b) => b.sales - a.sales);
+    const pick = (t) => ` class="pickable" data-otype="${esc(t)}" title="Show only ${esc(t)}"`;
+    let h = `<section class="panel"><div class="panel-head"><h3>Order types</h3><span class="muted">Click a row to filter${S.otype ? ` · <button type="button" class="tag" data-otype="">All order types</button>` : ""}</span></div>`;
+    h += `<div class="scroll"><table><thead><tr><th>Order type</th><th class="num">Sales</th><th class="num">Share</th><th class="num">Invoiced</th><th class="num">Paid</th><th class="num">Pts earned</th><th class="num">Pts burned</th><th class="num">Redemptions</th></tr></thead><tbody>` +
+      rows.map((t) => `<tr${pick(t.type)}${S.otype === t.type ? ' style="font-weight:600"' : ""}><td>${esc(t.type)}</td><td class="num">${int(t.sales)}</td><td class="num">${Math.round((t.sales / total) * 100)}%</td><td class="num">${aed(Math.round(t.aed))}</td><td class="num">${aed(Math.round(t.paid))}</td><td class="num">${int(t.earned)}</td><td class="num">${int(t.burned)}</td><td class="num">${int(t.redemptions)}</td></tr>`).join("") +
+      `<tr${pick("Non-Order")}${S.otype === "Non-Order" ? ' style="font-weight:600"' : ""}><td>Non-Order</td><td class="num muted" colspan="7">${plural(nonRows, "row")}: bonuses, expiries and refunds</td></tr></tbody></table></div>`;
+    if (S.otype === "Non-Order") {
+      h += `<h3 style="margin-top:12px">Non-Order rows</h3>` + table([{ label: "Kind", key: "kind" }, { label: "Rows", key: "rows", num: true }, { label: "Points", get: (r) => int(r.points), num: true }], [...kinds.values()].sort((a, b) => b.rows - a.rows), { empty: "No non-order rows." });
+    }
+    return h + `</section>`;
+  }
+
   // ---------- day view ----------
   function dayView() {
     const sum = byDate().get(S.date);
@@ -442,7 +484,9 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
     const det = S.details.get(S.date);
     if (det === undefined) detailFor(S.date);
     const k = sum.kpis || {};
-    const st = S.store ? (sum.stores || []).find((r) => r.id === S.store) : null;
+    const slice = typeSlice(sum, S.otype);
+    const storeRows = slice ? slice.stores : (sum.stores || []);
+    const st = S.store ? (storeRows.find((r) => r.id === S.store) || (slice ? { id: S.store, name: S.store, sales: 0, aed: 0, discount: 0, paid: 0, earned: 0, burned: 0, redemptions: 0 } : null)) : null;
     const fc = sum.flagCounts || {};
     const status = sum.status || "ok";
 
@@ -455,7 +499,10 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
     if (sum.mode === "history") h += `<p class="note">This day was rebuilt from saved transactions. Zoho deletes till and NCR logs after 3 days, so lost sales, refunds, log errors and app orders can't be checked for it.</p>`;
     if (S.store) h += `<p class="note">Showing <b>${esc(st ? st.name : S.store)}</b> in the tiles and lists. Flags, sign-ups, expiry and app figures are for all restaurants. <button type="button" class="tag" data-store="">Show all restaurants</button></p>`;
 
-    const src = st || { sales: k.sales, aed: k.salesAed, discount: k.discountAed, paid: k.paidAed, earned: k.pointsEarned, burned: k.pointsBurned, redemptions: k.redemptions, lost: k.lostSales, lostPoints: k.lostPoints, customers: k.customers };
+    if (S.otype && !sum.orderTypes) h += `<p class="note">Order type isn't recorded for this day, so the figures below are for all order types.</p>`;
+    else if (S.otype === "Non-Order") h += `<p class="note">Non-Order rows are bonuses, expiries and refunds, not sales. The tiles and restaurants below are for all sales; the Order types panel lists the non-order rows.</p>`;
+    else if (slice) h += `<p class="note">Showing <b>${esc(S.otype)}</b> sales in the tiles, restaurants and hourly chart. <button type="button" class="tag" data-otype="">Show all order types</button></p>`;
+    const src = st || (slice ? { ...slice.total, lost: k.lostSales, lostPoints: k.lostPoints } : { sales: k.sales, aed: k.salesAed, discount: k.discountAed, paid: k.paidAed, earned: k.pointsEarned, burned: k.pointsBurned, redemptions: k.redemptions, lost: k.lostSales, lostPoints: k.lostPoints, customers: k.customers });
     const avg = src.sales ? (src.aed || 0) / src.sales : 0;
     h += `<section class="kpis" aria-label="Key figures">
       ${tile("Sales", int(src.sales), `${esc(aed(Math.round(src.aed || 0)))} invoiced · avg ${esc(aed(Math.round(avg)))}`)}
@@ -478,11 +525,12 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
     </section>`;
 
     // Restaurants + hourly
-    const hourly = det && det.hourly ? det.hourly : null;
+    const hourly = det && det.hourly ? (slice ? ((det.hourlyByType || {})[S.otype] || Array(24).fill(0)) : det.hourly) : null;
     const hourChart = hourly ? columns(hourly.map((v, i) => ({ v, tick: String(i).padStart(2, "0"), tip: `${String(i).padStart(2, "0")}:00–${String(i).padStart(2, "0")}:59 · ${plural(v, "sale")}` })), { tickEvery: 3 }) : '<p class="muted">Loading…</p>';
+    h += orderTypesPanel(sum.orderTypes ? [sum] : []);
     h += `<div class="split">
-      <section class="panel"><div class="panel-head"><h3>Restaurants</h3><span class="muted">Click a row to filter</span></div>${storeTable(sum.stores || [])}</section>
-      <section class="panel"><div class="panel-head"><h3>Sales by hour</h3><span class="muted">All restaurants</span></div>${hourChart}</section>
+      <section class="panel"><div class="panel-head"><h3>Restaurants${slice ? ` · ${esc(S.otype)}` : ""}</h3><span class="muted">Click a row to filter</span></div>${storeTable(storeRows)}</section>
+      <section class="panel"><div class="panel-head"><h3>Sales by hour</h3><span class="muted">All restaurants${slice ? ` · ${esc(S.otype)}` : ""}</span></div>${hourChart}</section>
     </div>`;
 
     if (det) h += daySections(det, sum);
@@ -511,8 +559,12 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
       h += section("Approved, no sale posted", plural(ap.length, "approval"), `<p class="msg">The till checked a redemption but never sent the sale. Usually an abandoned order; sometimes a lost sale.</p>` +
         table([{ label: "Time", key: "at" }, { label: "Restaurant", html: storeCell }, { label: "Customer", get: (r) => r.customer || r.phone }, { label: "Points", key: "points", num: true }, { label: "AED", key: "aed", num: true }, { label: "Order", html: (r) => `<span class="mono">${esc(r.order)}</span>` }], ap, { empty: "None." }), false);
       const rf = byStore(s.refunds || []);
-      const statusText = { "ignored-no-phone": "Ignored: no phone number", recorded: "Recorded", "not-recorded": "Not recorded" };
-      h += section("Refunds from the till", plural(rf.length, "refund"), table([{ label: "Time", key: "at" }, { label: "Restaurant", html: storeCell }, { label: "Code sent", html: (r) => `<span class="mono">${esc(r.sentCode)}</span>` }, { label: "Order", html: (r) => `<span class="mono">${esc(r.order)}</span>` }, { label: "Result", html: (r) => r.status === "recorded" ? esc(statusText[r.status]) : `<span class="tag bad">${esc(statusText[r.status] || r.status)}</span>` }], rf, { empty: "No refunds." }), rf.some((r) => r.status !== "recorded"));
+      const statusText = { "ignored-no-phone": "Not reversed: no phone number", recorded: "Recorded", "not-recorded": "Not recorded", "not-loyalty": "Not a loyalty sale" };
+      const refundOk = (r) => r.status === "recorded" || r.status === "not-loyalty";
+      h += section("Refunds from the till", plural(rf.length, "refund"), `<p class="msg">The till sends a refund for every voided or refunded order. Only a refund of a loyalty sale has points to reverse.</p>` +
+        table([{ label: "Time", key: "at" }, { label: "Restaurant", html: storeCell }, { label: "Code sent", html: (r) => `<span class="mono">${esc(r.sentCode)}</span>` }, { label: "Order", html: (r) => `<span class="mono">${esc(r.order)}</span>` }, { label: "Customer", get: (r) => r.customer || "" }, { label: "Points", get: (r) => r.customer ? `+${int(r.earned)} / -${int(r.burned)}` : "" }, { label: "Result", html: (r) => refundOk(r) ? esc(statusText[r.status]) : `<span class="tag bad">${esc(statusText[r.status] || r.status)}</span>` }], rf, { empty: "No refunds." }), rf.some((r) => !refundOk(r)));
+      if ((s.negatives || []).length) h += section("Customers with a negative balance", plural(s.negatives.length, "customer"), `<p class="msg">The loyalty engine drops every sale from these customers, without an error, until their balance is 0 or more. Checked when the report was built.</p>` +
+        table([{ label: "Customer", key: "name" }, { label: "Phone", key: "phone" }, { label: "Total", key: "total", num: true }, { label: "Purchase pts", key: "available", num: true }, { label: "Bonus pts", key: "bonus", num: true }, { label: "Bonus earned", key: "earned", num: true }, { label: "Bonus burned", key: "burned", num: true }, { label: "Bonus expired", key: "expired", num: true }], s.negatives), true);
       if ((s.storeCodes || []).length) h += section("Store codes the store list doesn't have", plural(s.storeCodes.length, "code"), table([{ label: "Code sent", html: (r) => `<span class="mono">${esc(r.code)}</span>` }, { label: "Calls", key: "posts", num: true }, { label: "Problem", get: (r) => r.kind === "short" ? `Short form of ${r.correct}` : "Not in the store list" }], s.storeCodes), true);
     }
 
@@ -573,9 +625,15 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
     const days = S.summaries.filter((s) => s.date.startsWith(S.month || "")).sort((a, b) => (a.date < b.date ? -1 : 1));
     if (!days.length) return emptyState();
     const tot = Object.fromEntries(ADD.map((k) => [k, days.reduce((a, s) => a + ((s.kpis || {})[k] || 0), 0)]));
+    const typed = S.otype && S.otype !== "Non-Order";
+    if (typed) {
+      const map = { sales: "sales", salesAed: "aed", discountAed: "discount", paidAed: "paid", pointsEarned: "earned", pointsBurned: "burned", redemptions: "redemptions" };
+      for (const [k, f] of Object.entries(map)) tot[k] = days.reduce((a, s) => { const sl = typeSlice(s, S.otype); return a + (sl ? sl.total[f] || 0 : 0); }, 0);
+    }
+    const rowsOf = (s) => { const sl = typed ? typeSlice(s, S.otype) : null; return sl ? sl.stores : typed ? [] : (s.stores || []); };
     const status = countStatus(days);
     const stores = new Map();
-    for (const s of days) for (const r of s.stores || []) {
+    for (const s of days) for (const r of rowsOf(s)) {
       const e = stores.get(r.id) || { id: r.id, name: r.name, emirate: r.emirate, known: r.known, inMaster: r.inMaster, sales: 0, aed: 0, discount: 0, paid: 0, earned: 0, burned: 0, redemptions: 0, refunds: 0, lost: 0, posts: 0, days: 0 };
       for (const k of ["sales", "aed", "discount", "paid", "earned", "burned", "redemptions", "refunds", "lost", "posts"]) e[k] += r[k] || 0;
       if (r.sales) e.days++;
@@ -609,13 +667,18 @@ footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
     for (let d = 1; d <= nDays; d++) {
       const iso = `${S.month}-${String(d).padStart(2, "0")}`;
       const s = map.get(iso);
-      const row = s && st ? (s.stores || []).find((r) => r.id === S.store) : null;
-      const v = s ? (st ? (row ? row.sales : 0) : s.kpis.sales) : 0;
-      const lost = s ? (st ? (row ? row.lost : 0) : s.kpis.lostSales) : 0;
+      const sl = s && typed ? typeSlice(s, S.otype) : null;
+      const row = s && st ? rowsOf(s).find((r) => r.id === S.store) : null;
+      const v = s ? (st ? (row ? row.sales : 0) : sl ? sl.total.sales : typed ? 0 : s.kpis.sales) : 0;
+      const money = s ? (st ? (row ? row.aed : 0) : sl ? sl.total.aed : typed ? 0 : s.kpis.salesAed) : 0;
+      const lost = s ? (st ? (row ? row.lost || 0 : 0) : s.kpis.lostSales) : 0;
       items.push({ v, tick: String(d), key: s ? iso : "", dim: !s, mark: lost > 0,
-        tip: s ? `${shortDay(iso)} · ${plural(v, "sale")} · ${aed(Math.round(st ? (row ? row.aed : 0) : s.kpis.salesAed))}${lost ? ` · ${int(lost)} not saved` : ""} · ${SEV_LABEL[s.status]}` : `${shortDay(iso)} · no report` });
+        tip: s ? `${shortDay(iso)} · ${plural(v, typed ? S.otype + " sale" : "sale")} · ${aed(Math.round(money))}${lost ? ` · ${int(lost)} not saved` : ""} · ${SEV_LABEL[s.status]}${typed && !s.orderTypes ? " · order type not recorded" : ""}` : `${shortDay(iso)} · no report` });
     }
-    h += `<section class="panel"><div class="panel-head"><h3>Sales per day</h3><div class="legend-inline"><span><svg width="10" height="10" aria-hidden="true" style="vertical-align:-1px;margin-right:5px"><circle cx="5" cy="5" r="4" fill="var(--critical)"/></svg>Day with sales not saved</span><span class="muted">Click a day to open it</span></div></div>${columns(items, { height: 190, tickEvery: nDays > 20 ? 2 : 1, clickable: true })}</section>`;
+    const typedDays = days.filter((d) => d.orderTypes);
+    if (S.otype && typedDays.length < days.length) h += `<p class="note">Order type is recorded on ${plural(typedDays.length, "day")} of this month; ${plural(days.length - typedDays.length, "day")} without it ${typed ? "count as 0 for " + esc(S.otype) : "are left out of the Order types panel"}.</p>`;
+    h += orderTypesPanel(typedDays);
+    h += `<section class="panel"><div class="panel-head"><h3>${typed ? esc(S.otype) + " sales" : "Sales"} per day</h3><div class="legend-inline"><span><svg width="10" height="10" aria-hidden="true" style="vertical-align:-1px;margin-right:5px"><circle cx="5" cy="5" r="4" fill="var(--critical)"/></svg>Day with sales not saved</span><span class="muted">Click a day to open it</span></div></div>${columns(items, { height: 190, tickEvery: nDays > 20 ? 2 : 1, clickable: true })}</section>`;
 
     // Calendar
     const first = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();

@@ -23,6 +23,10 @@
  *        [--signups FILE] [--stores FILE]
  *        Builds transaction-only reports for older days, once the logs are gone.
  *
+ *   node daily-report.mjs weekly [--end YYYY-MM-DD]
+ *        Writes weekly-<monday>.html, a business summary of the last full
+ *        Monday-Sunday week (or the week ending --end) for the brand team's email.
+ *
  * Exports are read from the folder the connector's saveAs writes to (ZOHO_EXPORT_DIR,
  * default <system temp>/zoho-mcp-exports). Reports and the list of published days
  * go to %LOCALAPPDATA%\peets-daily-report (PEETS_REPORT_DIR, or --out). Every time
@@ -58,13 +62,13 @@ const DOC_BUDGET_BYTES = 230_000;
 const LIST_CAP = 300;
 
 const SALE_TYPES = new Set(["Purchase", "Redeem", "Purchase & Redeem"]);
-const DAY_SOURCES = ["transactions", "pos", "appapi", "ncr", "tier", "orders", "carts", "signups", "backlog", "referrals30"];
+const DAY_SOURCES = ["transactions", "pos", "appapi", "ncr", "tier", "orders", "carts", "signups", "backlog", "referrals30", "sales7"];
 
 const TX_FIELDS = [
   "Order_ID", "Transaction_Time", "Type_field", "Status", "Restaurant_Name.Store_ID", "Customer",
   "Customer.Phone_Number", "Total_Invoice_Amount", "Total_Discount_Amount", "Total_Purchase_Amount",
   "Earned_Loyalty_Points", "Burned_Points", "Bonus_Points_earned", "Bonus_Points_Burned",
-  "Bonus_Expiration", "Bonus_Type", "BonusValidity", "Remaining_Bonus_Points",
+  "Bonus_Expiration", "Bonus_Type", "BonusValidity", "Remaining_Bonus_Points", "Order_Type",
 ];
 const ORDER_FIELDS = [
   "Type_field", "Customer", "Cart_Status", "Payment_Status", "Sub_Total", "Payment_Coupon_Discount_s",
@@ -169,7 +173,7 @@ function call(label, day, source, args) {
 }
 
 function callsForDay(D) {
-  const F = zDay(D), T = zDay(addDays(D, 1)), W30 = zDay(addDays(D, -29));
+  const F = zDay(D), T = zDay(addDays(D, 1)), W30 = zDay(addDays(D, -29)), W7 = zDay(addDays(D, -6));
   const inDay = (f) => `${f} >= "${F}" && ${f} < "${T}"`;
   const file = (s) => `peets-${D}-${s}.json`;
   return [
@@ -216,6 +220,14 @@ function callsForDay(D) {
       criteria: `Type_field == "Bonus" && Bonus_Type == "Referral" && Transaction_Time >= "${W30}" && Transaction_Time < "${T}"`,
       fields: ["Customer", "Transaction_Time", "Bonus_Points_earned"], maxPages: 5, saveAs: file("referrals30"),
     }),
+    // Refunds can come days after the sale; this tells a refunded loyalty sale from a
+    // refund of an order that never earned or burned points.
+    call(`${D} sales, last 7 days`, D, "sales7", {
+      reportLinkName: "All_Transactions",
+      criteria: `Type_field == "Purchase" && Transaction_Time >= "${W7}" && Transaction_Time < "${T}"`,
+      fields: ["Order_ID", "Customer", "Transaction_Time", "Earned_Loyalty_Points", "Burned_Points", "Bonus_Points_Burned"],
+      maxPages: 10, saveAs: file("sales7"),
+    }),
   ];
 }
 
@@ -225,6 +237,12 @@ function sharedCalls(runTag) {
       appLinkName: "peets-restaurant-management", reportLinkName: "All_Restaurant",
       fields: ["Store_ID", "Restaurant_Name", "Store_Name", "Restaurant_ID", "isActive"],
       maxPages: 2, saveAs: `peets-run${runTag}-stores.json`,
+    }),
+    call("negative balances", null, "negatives", {
+      reportLinkName: "Customer_Points_System_Report",
+      criteria: "Total_Points < 0 || Available_Points < 0 || Bonus_Points < 0",
+      fields: ["Customer", "Customer.Phone_Number", "Total_Points", "Available_Points", "Bonus_Points", "Bonus_Points_Earned", "Bonus_Points_Burned", "Bonus_Points_Expired"],
+      maxPages: 5, saveAs: `peets-run${runTag}-negatives.json`,
     }),
     call("all members", null, "members", {
       reportLinkName: "All_Customers", fields: ["Name", "Phone_Number", "Email", "Date_Of_Birth"],
@@ -365,6 +383,8 @@ function parsePos(r) {
 
 const NCR_GROUPS = [
   { key: "engine", label: "Loyalty engine errors", test: (t) => /^Function - loyaltyEngine\./.test(t) },
+  { key: "nostore", label: "Sales saved without a store", test: (t) => /^Store not set up/i.test(t) },
+  { key: "refused", label: "Sales the engine refused", test: (t) => /^Sale not saved/i.test(t) },
   { key: "crm", label: "CRM push errors", test: (t) => /crmIntegration/i.test(t) },
   { key: "signup", label: "Sign-up failures", test: (t) => t === "createNewCustomer" },
   { key: "profile", label: "Profile update failures", test: (t) => /^update profile$/i.test(t) },
@@ -373,7 +393,7 @@ const NCR_GROUPS = [
 ];
 
 /** Collapse ids, numbers and quoted values so repeats of one error group together. */
-const shape = (msg) => maskEmails(msg).replace(/'[^']*'/g, "'…'").replace(/\d+(\.\d+)?/g, "#").slice(0, 160);
+const shape = (msg) => maskEmails(msg).replace(/\d+(\.\d+)?/g, "#").slice(0, 160);
 
 // ---------------------------------------------------------------------------
 // One day's report
@@ -388,6 +408,14 @@ function buildDay(D, src, { mode, master = null, history = {} }) {
 
   const stores = indexStores(src.stores, master);
   const members = indexMembers(src.members);
+  // Customers whose balance is below zero: the engine only saves a sale when the points to
+  // burn are <= Total_Points, so every sale they make is dropped without an error.
+  const negatives = (src.negatives && src.negatives.available ? src.negatives.records : []).map((r) => ({
+    id: custId(r), name: custName(r), phone: r["Customer.Phone_Number"] || "",
+    total: num(r.Total_Points), available: num(r.Available_Points), bonus: num(r.Bonus_Points),
+    earned: num(r.Bonus_Points_Earned), burned: num(r.Bonus_Points_Burned), expired: num(r.Bonus_Points_Expired),
+  }));
+  const negativeByPhone = new Map(negatives.filter((n) => digits(n.phone)).map((n) => [digits(n.phone), n]));
   const fromMaster = (id) => { const m = stores.inMaster.get(id); return m ? placeName(m.name) || m.display : ""; };
   const storeName = (id) => (stores.byId.get(id) || {}).name || fromMaster(id) || (id ? `Unknown store ${id}` : "No store");
   const emirateOf = (id) => (stores.inMaster.get(id) || {}).emirate || "";
@@ -417,11 +445,33 @@ function buildDay(D, src, { mode, master = null, history = {} }) {
   const customersToday = new Set();
   const burnedOf = (r) => num(r.Burned_Points) + num(r.Bonus_Points_Burned);
 
+  // Order_Type (POS, Mobile/App, Non-Order) is a column on the Transactions report.
+  const orderTypeOf = (r) => String(r.Order_Type || "").trim() || "Not set";
+  const byType = new Map(), storesByType = new Map(), hourlyByType = new Map();
+  const typeRow = (t) => {
+    if (!byType.has(t)) byType.set(t, { type: t, sales: 0, aed: 0, discount: 0, paid: 0, earned: 0, burned: 0, redemptions: 0, customers: new Set() });
+    return byType.get(t);
+  };
+  const typeStore = (t, id) => {
+    if (!storesByType.has(t)) storesByType.set(t, new Map());
+    const m = storesByType.get(t);
+    if (!m.has(id)) m.set(id, { id, name: storeName(id), sales: 0, aed: 0, discount: 0, paid: 0, earned: 0, burned: 0, redemptions: 0, refunds: 0, customers: new Set() });
+    return m.get(id);
+  };
+
   let aed = 0, discount = 0, paid = 0, earned = 0, burned = 0, redemptions = 0;
   for (const r of sales) {
     const s = S(r["Restaurant_Name.Store_ID"]);
     const inv = num(r.Total_Invoice_Amount), dis = num(r.Total_Discount_Amount), pay = num(r.Total_Purchase_Amount);
     const e = num(r.Earned_Loyalty_Points), b = burnedOf(r);
+    const ot = orderTypeOf(r);
+    for (const x of [typeRow(ot), typeStore(ot, r["Restaurant_Name.Store_ID"] || "")]) {
+      x.sales++; x.aed += inv; x.discount += dis; x.paid += pay; x.earned += e; x.burned += b;
+      if (b > 0 || dis > 0) x.redemptions++;
+      if (custId(r)) x.customers.add(custId(r));
+    }
+    if (!hourlyByType.has(ot)) hourlyByType.set(ot, Array(24).fill(0));
+    hourlyByType.get(ot)[new Date(parseZ(r.Transaction_Time)).getUTCHours()]++;
     s.sales++; s.aed += inv; s.discount += dis; s.paid += pay; s.earned += e; s.burned += b;
     aed += inv; discount += dis; paid += pay; earned += e; burned += b;
     if (b > 0 || dis > 0) { s.redemptions++; redemptions++; }
@@ -485,6 +535,10 @@ function buildDay(D, src, { mode, master = null, history = {} }) {
     else if (check === "unknown") { reason = "unknown-store"; reasonText = `Store code ${p.store} is in neither Zoho's store list nor the store master`; }
     else if (check === "short") { reason = "short-code"; reasonText = `Short store code ${p.store} (should be ${stores.byShort.get(p.store)})`; }
     else if (err) { reason = "engine-error"; reasonText = maskEmails(err.message).slice(0, 200); }
+    else if (negativeByPhone.has(digits(p.phone))) {
+      const n = negativeByPhone.get(digits(p.phone));
+      reason = "negative-balance"; reasonText = `Customer's balance is negative (Total_Points ${n.total}), so the engine drops every sale`;
+    }
     else if (members.available && !member) { reason = "not-member"; reasonText = "Phone is not a member"; }
     else { reason = "not-saved"; reasonText = "No transaction saved and no error logged"; }
     const item = { at: p.at, store: p.store, storeName: s.name, order: p.order, phone: maskPhone(p.phone),
@@ -509,14 +563,25 @@ function buildDay(D, src, { mode, master = null, history = {} }) {
       phone: maskPhone(a.phone), customer: member ? member.name : "", points: a.pts, aed: r2(a.pts / POINTS_PER_AED) });
   }
 
+  // The till sends a refund for every voided or refunded order, member or not, and never
+  // with a phone number. Only a refund of a loyalty sale leaves points to reverse.
+  const recentSale = new Map(saleByOrder);
+  for (const r of src.sales7 ? src.sales7.records : []) if (r.Order_ID && !recentSale.has(r.Order_ID)) recentSale.set(r.Order_ID, r);
+  const canTellMembers = !!(src.sales7 && src.sales7.available);
   const refundPosts = [];
   const seenRefund = new Set();
   for (const p of peets.filter((p) => p.type === 4)) {
     if (seenRefund.has(p.order)) continue;
     seenRefund.add(p.order);
     const store = stores.byShort.get(p.store) || p.store;
-    const status = !p.phone ? "ignored-no-phone" : cancelledOrders.has(p.order) ? "recorded" : "not-recorded";
-    refundPosts.push({ at: p.at, store, storeName: storeName(store), sentCode: p.store, order: p.order, status });
+    const sale = recentSale.get(p.order);
+    const status = cancelledOrders.has(p.order) ? "recorded"
+      : !sale && canTellMembers ? "not-loyalty"
+      : !p.phone ? "ignored-no-phone" : "not-recorded";
+    const row = { at: p.at, store, storeName: storeName(store), sentCode: p.store, order: p.order, status };
+    if (sale) Object.assign(row, { customer: custName(sale), saleAt: sale.Transaction_Time,
+      earned: num(sale.Earned_Loyalty_Points), burned: num(sale.Burned_Points) + num(sale.Bonus_Points_Burned) });
+    refundPosts.push(row);
   }
 
   const badCodes = {};
@@ -580,6 +645,7 @@ function buildDay(D, src, { mode, master = null, history = {} }) {
       orphanPoints: sumPts(orphans, "Remaining_Bonus_Points"),
       top: [...byCust.values()].sort((a, b) => b.points - a.points).slice(0, 25),
     };
+    Object.defineProperty(backlog, "dueIds", { value: new Set(byCust.keys()), enumerable: false });
   }
 
   // ---- sign-ups and referrals ---------------------------------------------
@@ -677,11 +743,13 @@ function buildDay(D, src, { mode, master = null, history = {} }) {
     flag("warning", "points", `${approvalsNoSale.length} redemption approval${approvalsNoSale.length === 1 ? "" : "s"} with no sale posted`,
       `The till approved ${approvalsNoSale.reduce((a, x) => a + x.points, 0).toLocaleString("en-US")} points but never sent the sale. Either the order was abandoned or the sale was lost.`);
   }
-  const ignoredRefunds = refundPosts.filter((r) => r.status !== "recorded");
+  const ignoredRefunds = refundPosts.filter((r) => r.status !== "recorded" && r.status !== "not-loyalty");
   if (ignoredRefunds.length) {
     const noPhone = ignoredRefunds.filter((r) => r.status === "ignored-no-phone").length;
-    flag("warning", "refunds", `${ignoredRefunds.length} till refund${ignoredRefunds.length === 1 ? "" : "s"} not applied`,
-      noPhone ? `${noPhone} arrived with no phone number, which the loyalty engine needs, so the points were never reversed.` : "No cancellation row was saved for them.");
+    const pts = ignoredRefunds.reduce((a, r) => a + (r.earned || 0) + (r.burned || 0), 0);
+    flag("warning", "refunds", `${ignoredRefunds.length} refunded loyalty sale${ignoredRefunds.length === 1 ? "" : "s"} not reversed`,
+      (noPhone ? `${noPhone} arrived with no phone number, which the loyalty engine needs, so the points were never reversed.` : "No cancellation row was saved for them.")
+      + (pts ? ` ${pts.toLocaleString("en-US")} points earned or burned on those sales still stand.` : ""));
   }
   if (engineErrors.length) {
     const later = engineErrors.filter((x) => x.savedLater).length;
@@ -696,7 +764,14 @@ function buildDay(D, src, { mode, master = null, history = {} }) {
   }
   const failedExpiry = expiryLogs.filter((x) => x.failed > 0);
   if (failedExpiry.length) {
-    flag("warning", "expiry", "Expiry catch-up job had failures", failedExpiry.map((x) => `${x.at}: ${x.failed} failed`).join("; "));
+    // The job lists the customer id of each failure. If none of them still holds expired
+    // points when the report is built, a later run (or a manual fix) has caught up.
+    const failedIds = [...new Set(failedExpiry.flatMap((x) => x.message.match(/\b\d{19}\b/g) || []))];
+    const stillDue = backlog ? failedIds.filter((id) => backlog.dueIds.has(id)) : failedIds;
+    const resolved = backlog && failedIds.length && !stillDue.length;
+    flag(resolved ? "info" : "warning", "expiry", resolved ? "Expiry job failures since resolved" : "Expiry catch-up job had failures",
+      failedExpiry.map((x) => `${x.at}: ${x.failed} failed`).join("; ")
+      + (resolved ? `. ${failedIds.length === 1 ? "That customer has" : "Those customers have"} no expired points left.` : ""));
   }
   if (full && src.ncr.available && !expiryLogs.length && expired.length === 0 && backlog && backlog.customers > 0) {
     flag("critical", "expiry", "No expiry job ran", "No expiry log and no expired points today, while expired points are waiting.");
@@ -712,22 +787,54 @@ function buildDay(D, src, { mode, master = null, history = {} }) {
     flag("warning", "referrals", `${lookalikes.length} referral${lookalikes.length === 1 ? "" : "s"} look like the same person`,
       lookalikes.slice(0, 5).map((p) => `${p.referrer} → ${p.referee} (${p.signs.join(", ")})`).join("; "));
   }
+  const blocked = negatives.filter((n) => n.total < 0), lopsided = negatives.filter((n) => n.total >= 0);
+  const names = (list) => `${list.slice(0, 6).map((n) => `${n.name} (${n.total})`).join(", ")}${list.length > 6 ? ", …" : ""}`;
+  if (blocked.length) {
+    flag("critical", "points", `${blocked.length} customer${blocked.length === 1 ? " has" : "s have"} a negative balance`,
+      `${names(blocked)}. The loyalty engine drops every sale they make, without an error, until the total is 0 or more.`);
+  }
+  if (lopsided.length) {
+    flag("warning", "points", `${lopsided.length} customer${lopsided.length === 1 ? "" : "s"} with a negative bonus or purchase balance`,
+      `${names(lopsided)}. Their total is still 0 or more, so sales save, but one part of the balance is below zero.`);
+  }
+  const refused = ncr.filter((x) => /^Sale not saved/i.test(x.title));
+  if (refused.length) {
+    const why = countBy(refused, (x) => x.title.replace(/^Sale not saved\s*-\s*/i, "").trim() || "?");
+    flag("critical", "sales", `${refused.length} sale${refused.length === 1 ? "" : "s"} refused by the loyalty engine`,
+      `${Object.entries(why).map(([w, n]) => `${w}: ${n}`).join("; ")}. The receipt was printed but no transaction was saved. See the NCR log section for order IDs.`);
+  }
+  const noStore = ncr.filter((x) => /^Store not set up/i.test(x.title));
+  if (noStore.length) {
+    const codes = countBy(noStore, (x) => x.title.replace(/^Store not set up\s*-\s*/i, "").trim() || "?");
+    flag("warning", "sales", `${noStore.length} sale${noStore.length === 1 ? "" : "s"} saved without a store`,
+      `${Object.entries(codes).map(([c, n]) => `store code ${c}: ${n}`).join("; ")}. Add the store to Zoho's store list, then set the store on those sales.`);
+  }
+  // Zoho CRM is owned by another team; its failures don't affect points or sales, so they're info.
   if (crmLimit) {
-    flag("warning", "ncr", "CRM contact limit reached", `${ncrCount("crm")} customer pushes to Zoho CRM failed: the CRM account is at its 5,000-record limit, so new members aren't reaching CRM.`);
+    flag("info", "ncr", "CRM contact limit reached", `${ncrCount("crm")} customer pushes to Zoho CRM failed: the CRM account is at its 5,000-record limit, so new members aren't reaching CRM. A CRM team item; loyalty is not affected.`);
   } else if (ncrCount("crm")) {
-    flag("warning", "ncr", `${ncrCount("crm")} CRM push errors`, "See the NCR log section.");
+    flag("info", "ncr", `${ncrCount("crm")} CRM push errors`, "A CRM team item; loyalty is not affected. See the NCR log section.");
   }
   if (ncrCount("signup") >= 3) flag("info", "signups", `${ncrCount("signup")} sign-up attempts failed`, "Mostly emails that already belong to another member.");
-  if (orderIssues.length) {
-    flag("warning", "orders", `${orderIssues.length} app order${orderIssues.length === 1 ? "" : "s"} need a look`,
-      orderIssues.slice(0, 4).map((o) => `${o.customer || "?"}: ${o.type === "Failed Order" ? "failed" : !o.posId ? "paid, no POS order id" : o.posMessage}`).join("; "));
+  // The middleware (not Zoho) sends app orders to the store POS and calls back with the POS
+  // order id, so a missing id is a middleware item: shown for follow-up, not as a loyalty fault.
+  const noPosId = orderIssues.filter((o) => o.type !== "Failed Order" && !o.posId);
+  const otherOrderIssues = orderIssues.filter((o) => !noPosId.includes(o));
+  if (otherOrderIssues.length) {
+    flag("warning", "orders", `${otherOrderIssues.length} app order${otherOrderIssues.length === 1 ? "" : "s"} need a look`,
+      otherOrderIssues.slice(0, 4).map((o) => `${o.customer || "?"}: ${o.type === "Failed Order" ? "failed" : o.posMessage}`).join("; "));
+  }
+  if (noPosId.length) {
+    flag("info", "orders", `${noPosId.length} app order${noPosId.length === 1 ? "" : "s"} not confirmed by the store POS`,
+      `${noPosId.slice(0, 4).map((o) => o.customer || "?").join(", ")}. The middleware never sent back a POS order id. Points were taken in Zoho; ask the middleware team whether the order reached the store.`);
   }
   if (full && src.tier.available && tierRows.length === 0) flag("warning", "jobs", "Tier validation job left no log", "Membership tiers may not have been re-checked.");
   if (deletions) flag("info", "app", `${deletions} account deletion${deletions === 1 ? "" : "s"} from the app`, "Customers used Delete account.");
   if (members.available === false && full) flag("info", "data", "Member list not loaded", "Unsaved sales could not be checked against the member list.");
   const missing = Object.entries(src).filter(([k, v]) => !v.available && (full || ["transactions", "stores"].includes(k))).map(([k]) => k);
   if (full && missing.length) flag("info", "data", "Some data sources were not available", missing.join(", "));
-  const incomplete = Object.entries(src).filter(([, v]) => v.available && !v.complete).map(([k]) => k);
+  // The tier-job read is capped at one page on purpose: it only shows the job ran.
+  const incomplete = Object.entries(src).filter(([k, v]) => k !== "tier" && v.available && !v.complete).map(([k]) => k);
   if (incomplete.length) flag("warning", "data", "Some reads hit their page cap", `${incomplete.join(", ")}: counts are a minimum.`);
 
   // ---- restaurants: every store Zoho or the store master knows, busy or not ---
@@ -824,22 +931,38 @@ function buildDay(D, src, { mode, master = null, history = {} }) {
     members: members.available ? members.count : null,
   };
   const sources = Object.fromEntries(Object.entries(src).map(([k, v]) => [k, { available: v.available, count: v.count, complete: v.complete }]));
+  const hasOrderType = txAll.some((r) => r.Order_Type !== undefined);
+  const cleanRow = (x) => ({ ...x, aed: r2(x.aed), discount: r2(x.discount), paid: r2(x.paid), customers: x.customers.size });
+  const nonSales = tx.filter((r) => !SALE_TYPES.has(r.Type_field));
+  const nonOrderKinds = {};
+  for (const r of nonSales) {
+    const kind = [r.Type_field, r.Bonus_Type].filter(Boolean).join(" · ");
+    const e = nonOrderKinds[kind] || (nonOrderKinds[kind] = { kind, rows: 0, points: 0 });
+    e.rows++;
+    e.points += r.Type_field === "Expiration" ? num(r.Bonus_Expiration) : num(r.Bonus_Points_earned) || num(r.Earned_Loyalty_Points);
+  }
+  const orderTypes = hasOrderType ? {
+    types: [...byType.values()].map(cleanRow).sort((a, b) => b.sales - a.sales),
+    stores: Object.fromEntries([...storesByType].map(([t, m]) => [t, [...m.values()].filter((x) => x.id).map((x) => ({ ...cleanRow(x), emirate: emirateOf(x.id) })).sort((a, b) => b.sales - a.sales)])),
+    nonOrder: { rows: nonSales.length, kinds: Object.values(nonOrderKinds).sort((a, b) => b.rows - a.rows) },
+  } : null;
   const headline = status === "ok" ? "No issues found" : flags[0].title;
 
   const summary = {
     date: D, weekday: weekday(D), mode, generatedAt: new Date().toISOString(), status, headline,
     flagCounts: { critical: flagCounts.critical || 0, warning: flagCounts.warning || 0, info: flagCounts.info || 0 },
     topFlags: flags.slice(0, 6).map((f) => ({ severity: f.severity, title: f.title })),
-    kpis, stores: storeTable, sources,
+    kpis, stores: storeTable, sources, orderTypes,
     storeMaster: master ? { source: master.source, extracted: master.extracted, stores: master.stores.length } : null,
   };
   const detail = {
-    ...summary, flags, hourly,
+    ...summary, flags, hourly, hourlyByType: Object.fromEntries(hourlyByType),
     sections: {
       lostSales: lostSales.slice(0, LIST_CAP), notMembers: { count: notMembers.length, sample: notMembers.slice(0, 50) },
       pointsNotBurned: pointsNotBurned.slice(0, LIST_CAP), freeDiscounts: freeDiscounts.slice(0, LIST_CAP),
       approvalsNoSale: approvalsNoSale.slice(0, LIST_CAP), refunds: refundPosts.slice(0, LIST_CAP),
       storeCodes: unknownCodes,
+      negatives: negatives.map(({ id, phone, ...n }) => ({ ...n, phone: maskPhone(phone) })),
       till: full ? { byType: countBy(peets, (p) => `type ${p.type}`), hourly: hourlyOf(peets), kk: countBy(kk, (p) => `type ${p.type}`) } : null,
       expiry: { rows: expired.length, customers: expiredCustomers.size, points: expiredPoints,
         byType: countBy(expired, (r) => r.Bonus_Type || "?"), jobs: expiryLogs, backlog },
@@ -908,6 +1031,7 @@ function cmdBuild(opts) {
   const shared = {
     stores: loadSource(runTag && findExport(`peets-run${runTag}-stores.json`, inDir)),
     members: loadSource(runTag && findExport(`peets-run${runTag}-members.json`, inDir)),
+    negatives: loadSource(runTag && findExport(`peets-run${runTag}-negatives.json`, inDir)),
   };
   const master = loadMaster();
   const history = loadHistory(dir);
@@ -936,8 +1060,8 @@ function cmdHistory(opts) {
     transactions,
     stores: typeof opts.stores === "string" ? loadSource(resolve(opts.stores)) : unavailable(),
     signups: typeof opts.signups === "string" ? loadSource(resolve(opts.signups)) : unavailable(),
-    members: unavailable(), pos: unavailable(), appapi: unavailable(), ncr: unavailable(), tier: unavailable(),
-    orders: unavailable(), carts: unavailable(), backlog: unavailable(), referrals30: unavailable(),
+    members: unavailable(), negatives: unavailable(), pos: unavailable(), appapi: unavailable(), ncr: unavailable(), tier: unavailable(),
+    orders: unavailable(), carts: unavailable(), backlog: unavailable(), referrals30: unavailable(), sales7: unavailable(),
   };
   const master = loadMaster();
   const history = loadHistory(dir);
@@ -961,6 +1085,129 @@ function cmdMark(opts) {
   console.log(JSON.stringify({ published: dates, stateFile: join(dir, "state.json") }));
 }
 
+// ---------------------------------------------------------------------------
+// Weekly: a plain business summary of Monday-Sunday for the brand team, as an
+// email-safe HTML body (tables, headings and lists only - Outlook drafts made
+// through the connector reject spans, images and comments).
+// ---------------------------------------------------------------------------
+
+const DASHBOARD_URL = "https://claude.ai/artifact/3fCTyTgKjEGYWwB6LVus2z";
+
+// Flags worth a line in the brand email, in plain words. Anything else stays on the dashboard.
+const WEEKLY_NOTES = [
+  [/member sales? not saved|sales? refused by the loyalty engine/i, "Loyalty sales that failed to save when they happened"],
+  [/burned fewer points than the till asked|discount and no points burned/i, "Redemptions where fewer points were taken than the discount given"],
+  [/referral bonus today|look-alike/i, "Unusually heavy referral activity from some members"],
+  [/negative balance/i, "Customers with a negative points balance"],
+  [/loyalty engine errors? logged/i, "Loyalty system errors while saving sales"],
+  [/without a store|missing from Zoho|not in the store list/i, "Sales from a store not yet set up in the loyalty system"],
+  [/quiet|no loyalty sales for/i, "Stores with far fewer loyalty sales than usual"],
+];
+
+function cmdWeekly(opts) {
+  const dir = outDir(opts);
+  const today = dubaiToday();
+  // Default: the last full Monday-Sunday week before today (Dubai).
+  let end = typeof opts.end === "string" ? checkIso(opts.end) : addDays(today, -1);
+  while (new Date(isoToMs(end)).getUTCDay() !== 0) end = addDays(end, -1);
+  const start = addDays(end, -6);
+  const days = (from) => Array.from({ length: 7 }, (_, i) => addDays(from, i));
+  const load = (list) => list.map((d) => ({ d, s: readJson(join(dir, `summary-${d}.json`), null) }));
+  const cur = load(days(start)), prev = load(days(addDays(start, -7)));
+  const missing = cur.filter((x) => !x.s).map((x) => x.d);
+  if (missing.length === 7) fail(`No daily summaries for ${start} to ${end} in ${dir}.`);
+
+  const KPI = ["sales", "salesAed", "discountAed", "paidAed", "customers", "pointsEarned", "pointsBurned", "redemptions", "signups", "referrals", "appOrders", "appOrdersAed"];
+  const total = (week) => {
+    const t = Object.fromEntries(KPI.map((k) => [k, 0]));
+    const types = {}, stores = new Map();
+    for (const { s } of week) {
+      if (!s) continue;
+      for (const k of KPI) t[k] += num(s.kpis[k]);
+      for (const ty of (s.orderTypes && s.orderTypes.types) || []) {
+        const e = (types[ty.type] ||= { sales: 0, aed: 0 }); e.sales += ty.sales; e.aed += ty.aed;
+      }
+      for (const r of s.stores || []) {
+        const e = stores.get(r.id) || { id: r.id, name: r.name, sales: 0, aed: 0 };
+        e.sales += num(r.sales); e.aed += num(r.aed); stores.set(r.id, e);
+      }
+    }
+    return { t, types, stores };
+  };
+  const W = total(cur), P = total(prev);
+  const havePrev = prev.some((x) => x.s);
+
+  const n0 = (v) => Math.round(v).toLocaleString("en-US");
+  const aed = (v) => `AED ${n0(v)}`;
+  const change = (a, b) => (!havePrev ? "" : !b ? (a ? "new" : "-") : Math.abs(a - b) < b * 0.005 ? "0%" : `${a >= b ? "+" : "-"}${Math.abs(Math.round(((a - b) / b) * 100))}%`);
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // Outlook drafts made through the connector reject any style/class attribute, so tables stay plain.
+  const st = () => "";
+  const TABLE = st("border-collapse:collapse;font-family:Segoe UI,Arial,sans-serif;font-size:14px");
+  const TH = st("text-align:left;padding:6px 12px;border-bottom:2px solid #444;background:#f3f3f3");
+  const TD = st("padding:6px 12px;border-bottom:1px solid #ddd");
+  const TDN = st("padding:6px 12px;border-bottom:1px solid #ddd;text-align:right");
+  const table = (head, rows) => `<table${TABLE}><tr>${head.map((h, i) => `<th${i ? st("text-align:right;padding:6px 12px;border-bottom:2px solid #444;background:#f3f3f3") : TH}>${esc(h)}</th>`).join("")}</tr>` +
+    rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? TDN : TD}>${esc(c)}</td>`).join("")}</tr>`).join("") + `</table>`;
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const dmy = (iso) => { const [y, m, d] = iso.split("-").map(Number); return `${d} ${MONTHS[m - 1]} ${y}`; };
+  const range = `${dmy(start)} – ${dmy(end)}`;
+
+  const k = W.t, p = P.t;
+  const kpiRows = [
+    ["Loyalty sales", n0(k.sales), havePrev ? n0(p.sales) : "", change(k.sales, p.sales)],
+    ["Sales value", aed(k.salesAed), havePrev ? aed(p.salesAed) : "", change(k.salesAed, p.salesAed)],
+    ["Paid by customers", aed(k.paidAed), havePrev ? aed(p.paidAed) : "", change(k.paidAed, p.paidAed)],
+    ["Discount from points", aed(k.discountAed), havePrev ? aed(p.discountAed) : "", change(k.discountAed, p.discountAed)],
+    ["Average sale", aed(k.sales ? k.salesAed / k.sales : 0), havePrev ? aed(p.sales ? p.salesAed / p.sales : 0) : "", change(k.sales ? k.salesAed / k.sales : 0, p.sales ? p.salesAed / p.sales : 0)],
+    ["Member visits", n0(k.customers), havePrev ? n0(p.customers) : "", change(k.customers, p.customers)],
+    ["Points earned", n0(k.pointsEarned), havePrev ? n0(p.pointsEarned) : "", change(k.pointsEarned, p.pointsEarned)],
+    ["Points redeemed", n0(k.pointsBurned), havePrev ? n0(p.pointsBurned) : "", change(k.pointsBurned, p.pointsBurned)],
+    ["Redemptions", n0(k.redemptions), havePrev ? n0(p.redemptions) : "", change(k.redemptions, p.redemptions)],
+    ["New members", n0(k.signups), havePrev ? n0(p.signups) : "", change(k.signups, p.signups)],
+    ["Referrals", n0(k.referrals), havePrev ? n0(p.referrals) : "", change(k.referrals, p.referrals)],
+  ];
+  const typeRows = Object.entries(W.types).sort((a, b) => b[1].sales - a[1].sales).map(([ty, v]) => {
+    const pv = P.types[ty] || { sales: 0, aed: 0 };
+    return [ty === "Mobile/App" ? "App orders" : ty === "POS" ? "In store (POS)" : ty, n0(v.sales), aed(v.aed), change(v.sales, pv.sales)];
+  });
+  const stores = [...W.stores.values()];
+  const top = stores.filter((s) => s.sales > 0).sort((a, b) => b.sales - a.sales).slice(0, 5)
+    .map((s) => [s.name, n0(s.sales), aed(s.aed), change(s.sales, (P.stores.get(s.id) || { sales: 0 }).sales)]);
+  const drops = havePrev ? stores.map((s) => ({ ...s, before: (P.stores.get(s.id) || { sales: 0 }).sales }))
+    .filter((s) => s.before >= 20 && s.sales <= s.before * 0.7).sort((a, b) => (a.sales / a.before) - (b.sales / b.before)).slice(0, 5)
+    .map((s) => [s.name, n0(s.sales), n0(s.before), change(s.sales, s.before)]) : [];
+  const none = stores.filter((s) => s.sales === 0).map((s) => s.name).sort();
+
+  const notes = [];
+  for (const [re, text] of WEEKLY_NOTES) {
+    const hit = cur.filter((x) => x.s && (x.s.topFlags || []).some((f) => f.severity !== "info" && re.test(f.title)));
+    if (hit.length) notes.push(`${text} (${hit.length} day${hit.length === 1 ? "" : "s"})`);
+  }
+
+  const redeemAed = k.pointsBurned / POINTS_PER_AED;
+  const html = [
+    `<h2>Peet's Coffee Rewards – weekly summary</h2>`,
+    `<p><b>${esc(range)}</b> (UAE time)</p>`,
+    `<p>${n0(k.sales)} loyalty sales worth ${aed(k.salesAed)}${!havePrev || !p.salesAed ? "" : Math.abs(k.salesAed - p.salesAed) < p.salesAed * 0.01 ? ", about the same as the week before" : ` (${change(k.salesAed, p.salesAed)} on the week before)`}. Members redeemed ${n0(k.pointsBurned)} points (about ${aed(redeemAed)}) and ${n0(k.signups)} new members joined.</p>`,
+    `<h3>This week at a glance</h3>`,
+    table(["", "This week", havePrev ? "Week before" : "", havePrev ? "Change" : ""], kpiRows),
+    typeRows.length ? `<h3>In store and app</h3>` + table(["", "Sales", "Value", havePrev ? "Change" : ""], typeRows) : "",
+    top.length ? `<h3>Top 5 stores</h3>` + table(["Store", "Sales", "Value", havePrev ? "Change" : ""], top) : "",
+    drops.length ? `<h3>Stores well below last week</h3>` + table(["Store", "This week", "Week before", "Change"], drops) : "",
+    none.length ? `<p><b>No loyalty sales this week:</b> ${esc(none.join(", "))}.</p>` : "",
+    notes.length ? `<h3>Things to know</h3><ul>${notes.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p>These are followed up by the loyalty team; details are on the daily dashboard.</p>` : `<h3>Things to know</h3><p>No issues this week.</p>`,
+    missing.length ? `<p><i>No data for ${esc(missing.map(dmy).join(", "))}; figures cover the other days.</i></p>` : "",
+    `<hr><p>Figures cover loyalty members only: sales where the customer was identified by their phone number or ordered in the app. "Member visits" counts each member once per day. 40 points = AED 1.</p>`,
+    `<p>Daily detail: <a href="${DASHBOARD_URL}">Rewards Daily Health dashboard</a></p>`,
+  ].filter(Boolean).join("\n");
+
+  const file = join(dir, `weekly-${start}.html`);
+  writeFileSync(file, html);
+  const subject = `Peet's Rewards weekly summary: ${range}`;
+  console.log(JSON.stringify({ subject, htmlFile: file, from: start, to: end, missingDays: missing, bytes: Buffer.byteLength(html) }, null, 1));
+}
+
 function parseArgs(argv) {
   const [command = "help", ...rest] = argv;
   const opts = {};
@@ -974,9 +1221,9 @@ function parseArgs(argv) {
 }
 
 const { command, opts } = parseArgs(process.argv.slice(2));
-const commands = { plan: cmdPlan, build: cmdBuild, history: cmdHistory, mark: cmdMark };
+const commands = { plan: cmdPlan, build: cmdBuild, history: cmdHistory, mark: cmdMark, weekly: cmdWeekly };
 if (!commands[command]) {
-  console.log("Usage: node daily-report.mjs plan|build|mark|history [options] - see the header of this file.");
+  console.log("Usage: node daily-report.mjs plan|build|mark|history|weekly [options] - see the header of this file.");
   process.exit(command === "help" ? 0 : 1);
 }
 commands[command](opts);
