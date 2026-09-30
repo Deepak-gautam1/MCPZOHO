@@ -1,0 +1,660 @@
+<title>Rewards Daily Health</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky control bar over one 1200px column. Status banner, KPI row, flags,
+   then restaurants table beside the hourly chart, then collapsible detail sections. */
+:root {
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --surface-2: #f2f1ed;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #7a7873;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --accent: #2a78d6;
+  --accent-strong: #1c5cab;
+  --accent-wash: rgba(42, 120, 214, 0.10);
+  --good: #0ca30c;
+  --warning: #fab219;
+  --critical: #d03b3b;
+  --info: #6c7a89;
+  --good-ink: #006300;
+  --warning-ink: #8a5a00;
+  --critical-ink: #b42323;
+  --critical-wash: rgba(208, 59, 59, 0.08);
+  --warning-wash: rgba(250, 178, 25, 0.12);
+  --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #9a988f;
+    --grid: #2c2c2a; --axis: #45453f; --border: rgba(255, 255, 255, 0.10);
+    --accent: #3987e5; --accent-strong: #86b6ef; --accent-wash: rgba(57, 135, 229, 0.16);
+    --good-ink: #3fc23f; --warning-ink: #fab219; --critical-ink: #ef7a7a;
+    --critical-wash: rgba(208, 59, 59, 0.16); --warning-wash: rgba(250, 178, 25, 0.12); --info: #8f9baa;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #9a988f;
+  --grid: #2c2c2a; --axis: #45453f; --border: rgba(255, 255, 255, 0.10);
+  --accent: #3987e5; --accent-strong: #86b6ef; --accent-wash: rgba(57, 135, 229, 0.16);
+  --good-ink: #3fc23f; --warning-ink: #fab219; --critical-ink: #ef7a7a;
+  --critical-wash: rgba(208, 59, 59, 0.16); --warning-wash: rgba(250, 178, 25, 0.12); --info: #8f9baa;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--page); color: var(--ink); font-family: var(--font-ui); font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1200px; margin: 0 auto; padding-inline: 16px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+button, select { font: inherit; color: inherit; }
+button:focus-visible, select:focus-visible, summary:focus-visible, a:focus-visible, th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); font-size: 12.5px; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+/* Control bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--page); border-bottom: 1px solid var(--border); }
+.bar .wrap { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; padding-block: 12px; }
+.title h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.title p { margin: 2px 0 0; color: var(--ink-2); font-size: 12.5px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; padding: 2px; background: var(--surface); }
+.seg button { border: 0; background: transparent; padding: 5px 14px; border-radius: 999px; cursor: pointer; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
+.pick { display: inline-flex; align-items: center; gap: 4px; }
+.pick button { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; }
+.pick button:disabled { opacity: 0.35; cursor: default; }
+select { height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); padding: 0 8px; max-width: 100%; }
+
+main .wrap { display: grid; gap: 20px; padding-block: 20px 40px; }
+
+/* Status banner */
+.banner { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; align-items: center; padding: 16px 18px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); }
+.banner.critical { background: var(--critical-wash); }
+.banner.warning { background: var(--warning-wash); }
+.banner h2 { font-size: 20px; font-weight: 600; }
+.banner .meta { grid-column: 1 / -1; color: var(--ink-2); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 7px; border-radius: 999px; font-weight: 500; font-size: 12.5px; background: var(--surface); border: 1px solid var(--border); white-space: nowrap; }
+.chip svg { flex: none; }
+.chip.lg { font-size: 14px; padding: 5px 12px 5px 9px; }
+.note { font-size: 12.5px; color: var(--ink-2); background: var(--surface-2); border-radius: 6px; padding: 8px 10px; }
+
+/* KPI tiles */
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 640px) { .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: grid; gap: 2px; min-width: 0; align-content: start; }
+.tile .label { color: var(--ink-2); font-size: 12.5px; }
+.tile .value { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+@media (max-width: 420px) { .tile .value { font-size: 20px; } }
+.tile .sub { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.tile.alert { border-color: var(--critical); box-shadow: inset 3px 0 0 var(--critical); }
+.tile.caution { box-shadow: inset 3px 0 0 var(--warning); }
+
+/* Panels */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; min-width: 0; }
+.panel h3 { font-size: 15px; font-weight: 600; }
+.panel-head { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.split { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .split { grid-template-columns: minmax(0, 1fr); } }
+
+/* Flags */
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filters button { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 3px 10px; cursor: pointer; font-size: 12.5px; color: var(--ink-2); }
+.filters button[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); font-weight: 500; }
+.flags { list-style: none; margin: 0; padding: 0; display: grid; }
+.flags li { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 4px 12px; padding: 10px 0; border-top: 1px solid var(--grid); }
+.flags li:first-child { border-top: 0; }
+.flags .t { font-weight: 500; }
+.flags .d { grid-column: 2; color: var(--ink-2); font-size: 13px; overflow-wrap: anywhere; }
+@media (max-width: 560px) { .flags li { grid-template-columns: minmax(0, 1fr); } .flags .d { grid-column: 1; } }
+
+/* Tables */
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 7px 8px; text-align: left; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--ink-2); font-weight: 500; font-size: 12px; white-space: nowrap; }
+th button { all: unset; cursor: pointer; }
+th button[data-active="true"] { color: var(--ink); }
+tr.quiet td { color: var(--muted); }
+tr.pickable { cursor: pointer; }
+tr.pickable:hover td { background: var(--accent-wash); }
+.inbar { display: flex; align-items: center; gap: 8px; justify-content: flex-end; min-width: 120px; }
+.inbar span.track { flex: 1; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.inbar span.fill { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+.tag { display: inline-block; font-size: 11.5px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--border); color: var(--ink-2); white-space: nowrap; }
+.tag.bad { border-color: var(--critical); color: var(--critical-ink); }
+
+/* Charts */
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--muted); font-family: var(--font-ui); font-size: 11px; }
+.chart .gridline { stroke: var(--grid); stroke-width: 1; }
+.chart .baseline { stroke: var(--axis); stroke-width: 1; }
+.chart .bar { fill: var(--accent); }
+.chart .bar.dim { fill: var(--accent); opacity: 0.45; }
+.chart .hit { fill: transparent; cursor: pointer; }
+.chart .hit:hover + .bar, .chart .bar.hover { fill: var(--accent-strong); opacity: 1; }
+.chart .mark-critical { fill: var(--critical); stroke: var(--surface); stroke-width: 2; }
+.tooltip { position: absolute; pointer-events: none; background: var(--ink); color: var(--page); font-size: 12px; padding: 6px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 8px)); z-index: 3; }
+.tooltip[hidden] { display: none !important; }
+.legend-inline { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--ink-2); }
+.legend-inline i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
+/* Calendar strip */
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.cal .dow { font-size: 11.5px; color: var(--muted); text-align: center; }
+.cal button { border: 1px solid var(--border); background: var(--surface); border-radius: 6px; padding: 6px 4px; cursor: pointer; display: grid; gap: 2px; justify-items: center; min-height: 58px; min-width: 0; }
+.cal button:disabled { cursor: default; opacity: 0.4; background: transparent; }
+.cal button .dn { font-weight: 600; font-size: 13px; }
+.cal button .ds { font-size: 11px; color: var(--muted); }
+.cal button.critical { background: var(--critical-wash); border-color: var(--critical); }
+.cal button.warning { background: var(--warning-wash); }
+
+/* Sections */
+details.sec { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+details.sec > summary { list-style: none; cursor: pointer; padding: 12px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+details.sec > summary::-webkit-details-marker { display: none; }
+details.sec > summary::before { content: ""; width: 7px; height: 7px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); transition: transform 0.15s; margin-right: 2px; }
+details.sec[open] > summary::before { transform: rotate(45deg); }
+details.sec > summary h3 { font-size: 15px; font-weight: 600; }
+details.sec > summary .count { color: var(--ink-2); font-size: 12.5px; }
+details.sec .body { padding: 0 16px 16px; display: grid; gap: 12px; min-width: 0; }
+.kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 16px; }
+.kv div { display: grid; }
+.kv dt { color: var(--ink-2); font-size: 12px; }
+.kv dd { margin: 0; font-weight: 500; font-variant-numeric: tabular-nums; }
+.msg { font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
+
+.empty { text-align: center; padding: 60px 16px; display: grid; gap: 10px; justify-items: center; }
+.empty h2 { font-size: 20px; }
+.empty p { max-width: 60ch; margin: 0; color: var(--ink-2); }
+footer .wrap { padding-block: 0 32px; color: var(--muted); font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="bar">
+  <div class="wrap">
+    <div class="title">
+      <h1>Rewards Daily Health</h1>
+      <p>Peet's UAE loyalty on Zoho Creator · every time is Dubai time (UTC+4)</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="View">
+        <button type="button" id="viewDay" aria-pressed="true">Day</button>
+        <button type="button" id="viewMonth" aria-pressed="false">Month</button>
+      </div>
+      <div class="pick" id="dayPick">
+        <button type="button" id="prevDay" aria-label="Previous day">‹</button>
+        <select id="daySel" aria-label="Day"></select>
+        <button type="button" id="nextDay" aria-label="Next day">›</button>
+      </div>
+      <div class="pick" id="monthPick" hidden>
+        <select id="monthSel" aria-label="Month"></select>
+      </div>
+      <select id="storeSel" aria-label="Restaurant"><option value="">All restaurants</option></select>
+    </div>
+  </div>
+</header>
+
+<main><div class="wrap" id="app">
+  <div class="empty">
+    <h2>Loading reports</h2>
+    <p>Each morning at 6:00 AM India time a scheduled task reads the previous day from Zoho Creator and adds it here.</p>
+  </div>
+</div></main>
+<footer><div class="wrap" id="foot">Read-only reports built from Zoho Creator: transactions, till calls, NCR logs, app orders and sign-ups. Till and NCR logs are deleted by Zoho after 3 days, so older days show transactions only.</div></footer>
+<div class="tooltip" id="tip" hidden></div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const app = $("app");
+  const S = {
+    db: null, dbState: "loading", summaries: [], details: new Map(), loadingDetail: null,
+    view: "day", date: null, month: null, store: "", sev: "all", sort: { key: "sales", dir: -1 },
+  };
+
+  // ---------- formatting ----------
+  const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const int = (n) => (n === null || n === undefined || Number.isNaN(n) ? "–" : Math.round(n).toLocaleString("en-US"));
+  const aed = (n) => (n === null || n === undefined ? "–" : "AED " + Number(n).toLocaleString("en-US", { maximumFractionDigits: n % 1 ? 2 : 0 }));
+  const compact = (n) => {
+    if (n === null || n === undefined) return "–";
+    const a = Math.abs(n);
+    if (a >= 1e6) return (n / 1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, "") + "M";
+    if (a >= 1e4) return (n / 1e3).toFixed(a >= 1e5 ? 0 : 1).replace(/\.0$/, "") + "K";
+    return int(n);
+  };
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const d8 = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+  const dayLabel = (iso) => { const d = d8(iso); return `${DOW[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+  const shortDay = (iso) => { const d = d8(iso); return `${DOW[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`; };
+  const monthLabel = (ym) => { const [y, m] = ym.split("-").map(Number); return `${new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-GB", { month: "long", timeZone: "UTC" })} ${y}`; };
+  const ago = (iso) => {
+    if (!iso) return "";
+    const t = new Date(iso);
+    return t.toLocaleString("en-GB", { timeZone: "Asia/Dubai", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + " Dubai";
+  };
+  const plural = (n, one, many) => `${int(n)} ${n === 1 ? one : many || one + "s"}`;
+
+  // ---------- status icons (shape + label, never colour alone) ----------
+  const ICON = {
+    critical: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6.5" fill="var(--critical)"/><rect x="6.1" y="3.2" width="1.8" height="5" rx=".9" fill="#fff"/><circle cx="7" cy="10.4" r="1" fill="#fff"/></svg>',
+    warning: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .9 13.4 12.6H.6Z" fill="var(--warning)" stroke-linejoin="round"/><rect x="6.2" y="4.6" width="1.6" height="4.4" rx=".8" fill="#0b0b0b"/><circle cx="7" cy="10.6" r=".9" fill="#0b0b0b"/></svg>',
+    info: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6.5" fill="var(--info)"/><circle cx="7" cy="3.9" r="1" fill="#fff"/><rect x="6.2" y="5.6" width="1.6" height="5" rx=".8" fill="#fff"/></svg>',
+    ok: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6.5" fill="var(--good)"/><path d="M4 7.2 6.1 9.3 10.1 4.9" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  };
+  const SEV_LABEL = { critical: "Critical", warning: "Warning", info: "Info", ok: "No issues" };
+  const chip = (sev, text, lg) => `<span class="chip${lg ? " lg" : ""}">${ICON[sev] || ICON.info}${esc(text || SEV_LABEL[sev])}</span>`;
+
+  // ---------- preferences ----------
+  const PREF = "rewards-daily-health";
+  try { Object.assign(S, JSON.parse(localStorage.getItem(PREF) || "{}")); } catch (e) { /* storage blocked */ }
+  const savePrefs = () => { try { localStorage.setItem(PREF, JSON.stringify({ view: S.view, store: S.store, sev: S.sev })); } catch (e) { /* ignore */ } };
+  const hash = location.hash.slice(1);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(hash)) { S.view = "day"; S.date = hash; }
+  else if (/^\d{4}-\d{2}$/.test(hash)) { S.view = "month"; S.month = hash; }
+
+  // ---------- data ----------
+  const byDate = () => new Map(S.summaries.map((s) => [s.date, s]));
+  const dates = () => S.summaries.map((s) => s.date);
+  const months = () => [...new Set(dates().map((d) => d.slice(0, 7)))].sort().reverse();
+
+  async function boot() {
+    let db = null;
+    try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch (e) { db = null; }
+    if (!db) { S.dbState = "none"; render(); return; }
+    S.db = db;
+    db.collection("summaries").onSnapshot((snap) => {
+      S.summaries = snap.docs.filter((d) => d.exists).map((d) => d.data()).filter((s) => s && s.date).sort((a, b) => (a.date < b.date ? 1 : -1));
+      S.dbState = "ready";
+      if (!S.date || !byDate().has(S.date)) S.date = S.summaries[0] ? S.summaries[0].date : null;
+      if (!S.month || !months().includes(S.month)) S.month = S.date ? S.date.slice(0, 7) : months()[0] || null;
+      // Refresh a cached detail when its summary was rebuilt.
+      for (const [date, det] of S.details) { const s = byDate().get(date); if (s && det && s.generatedAt !== det.generatedAt) S.details.delete(date); }
+      render();
+    }, () => { S.dbState = "error"; render(); });
+  }
+
+  async function detailFor(date) {
+    if (S.details.has(date)) return S.details.get(date);
+    if (S.loadingDetail === date) return null;
+    S.loadingDetail = date;
+    try {
+      const snap = await S.db.doc("days/" + date).get();
+      S.details.set(date, snap.exists ? snap.data() : false);
+    } catch (e) {
+      S.details.set(date, false);
+    }
+    S.loadingDetail = null;
+    render();
+    return S.details.get(date);
+  }
+
+  // ---------- controls ----------
+  function syncControls() {
+    $("viewDay").setAttribute("aria-pressed", String(S.view === "day"));
+    $("viewMonth").setAttribute("aria-pressed", String(S.view === "month"));
+    $("dayPick").hidden = S.view !== "day";
+    $("monthPick").hidden = S.view !== "month";
+    const ds = dates();
+    $("daySel").innerHTML = ds.map((d) => `<option value="${d}"${d === S.date ? " selected" : ""}>${esc(dayLabel(d))}</option>`).join("") || "<option>No days yet</option>";
+    const i = ds.indexOf(S.date);
+    $("prevDay").disabled = i < 0 || i >= ds.length - 1;
+    $("nextDay").disabled = i <= 0;
+    $("monthSel").innerHTML = months().map((m) => `<option value="${m}"${m === S.month ? " selected" : ""}>${esc(monthLabel(m))}</option>`).join("") || "<option>No months yet</option>";
+    const stores = new Map();
+    for (const s of S.summaries) for (const r of s.stores || []) if (r.id && !stores.has(r.id)) stores.set(r.id, { name: r.name, emirate: r.emirate || "Other" });
+    if (S.store && !stores.has(S.store)) S.store = "";
+    const groups = new Map();
+    for (const [id, st] of [...stores].sort((a, b) => a[1].name.localeCompare(b[1].name))) {
+      if (!groups.has(st.emirate)) groups.set(st.emirate, []);
+      groups.get(st.emirate).push(`<option value="${esc(id)}"${id === S.store ? " selected" : ""}>${esc(st.name)} · ${esc(id)}</option>`);
+    }
+    $("storeSel").innerHTML = `<option value="">All restaurants</option>` + [...groups].sort((a, b) => b[1].length - a[1].length)
+      .map(([emirate, opts]) => `<optgroup label="${esc(emirate)}">${opts.join("")}</optgroup>`).join("");
+  }
+
+  $("viewDay").addEventListener("click", () => { S.view = "day"; savePrefs(); render(); });
+  $("viewMonth").addEventListener("click", () => { S.view = "month"; if (S.date) S.month = S.date.slice(0, 7); savePrefs(); render(); });
+  $("daySel").addEventListener("change", (e) => { S.date = e.target.value; render(); });
+  $("monthSel").addEventListener("change", (e) => { S.month = e.target.value; render(); });
+  $("storeSel").addEventListener("change", (e) => { S.store = e.target.value; savePrefs(); render(); });
+  $("prevDay").addEventListener("click", () => { const ds = dates(); const i = ds.indexOf(S.date); if (i < ds.length - 1) { S.date = ds[i + 1]; render(); } });
+  $("nextDay").addEventListener("click", () => { const ds = dates(); const i = ds.indexOf(S.date); if (i > 0) { S.date = ds[i - 1]; render(); } });
+
+  app.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-sev],[data-day],[data-sort],[data-store]");
+    if (!t) return;
+    if (t.dataset.sev) { S.sev = t.dataset.sev; savePrefs(); render(); }
+    else if (t.dataset.day) { S.date = t.dataset.day; S.view = "day"; savePrefs(); render(); window.scrollTo({ top: 0 }); }
+    else if (t.dataset.sort) { const k = t.dataset.sort; S.sort = { key: k, dir: S.sort.key === k ? -S.sort.dir : -1 }; render(); }
+    else if (t.dataset.store !== undefined) { S.store = t.dataset.store; savePrefs(); render(); }
+  });
+
+  // ---------- charts ----------
+  function niceMax(v) {
+    if (v <= 0) return 1;
+    const p = Math.pow(10, Math.floor(Math.log10(v)));
+    for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= v) return m * p;
+    return 10 * p;
+  }
+  const barPath = (x, y, w, h, r) => {
+    r = Math.max(0, Math.min(r, w / 2, h));
+    return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+  };
+
+  /** Column chart: one series, one axis. items = [{v, label, tick, tip, key, dim, mark}] */
+  function columns(items, { height = 170, tickEvery = 1, clickable = false } = {}) {
+    const W = 640, H = height, L = 36, R = 6, T = 14, B = 22;
+    const max = niceMax(Math.max(0, ...items.map((i) => i.v)));
+    const step = (W - L - R) / Math.max(items.length, 1);
+    const bw = Math.min(24, Math.max(3, step - 2));
+    const y = (v) => T + (H - T - B) * (1 - v / max);
+    const ticks = [0, max / 2, max];
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Column chart">`;
+    for (const t of ticks) s += `<line class="${t === 0 ? "baseline" : "gridline"}" x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}"/><text x="${L - 6}" y="${y(t) + 4}" text-anchor="end">${compact(t)}</text>`;
+    items.forEach((it, i) => {
+      const x = L + i * step + (step - bw) / 2;
+      const h = Math.max(0, y(0) - y(it.v));
+      s += `<g data-tip="${esc(it.tip)}"${clickable && it.key ? ` data-day="${esc(it.key)}"` : ""}>`;
+      s += `<rect class="hit" x="${L + i * step}" y="${T}" width="${step}" height="${H - T - B}"/>`;
+      if (h > 0) s += `<path class="bar${it.dim ? " dim" : ""}" d="${barPath(x, y(it.v), bw, h, 4)}"/>`;
+      if (it.mark) s += `<circle class="mark-critical" cx="${x + bw / 2}" cy="${Math.max(T - 2, y(it.v) - 9)}" r="4"/>`;
+      s += `</g>`;
+      if (i % tickEvery === 0) s += `<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle">${esc(it.tick)}</text>`;
+    });
+    return `<div class="chart">${s}</svg></div>`;
+  }
+
+  const tip = $("tip");
+  function wireTips(root) {
+    root.querySelectorAll(".chart g[data-tip]").forEach((g) => {
+      const show = (ev) => {
+        const chart = g.closest(".chart");
+        const box = chart.getBoundingClientRect(), r = g.querySelector(".hit").getBoundingClientRect();
+        tip.textContent = g.dataset.tip;
+        tip.hidden = false;
+        const bar = g.querySelector(".bar");
+        chart.querySelectorAll(".bar.hover").forEach((b) => b.classList.remove("hover"));
+        if (bar) bar.classList.add("hover");
+        const top = (bar ? bar.getBoundingClientRect().top : r.bottom - 10) + window.scrollY;
+        tip.style.left = Math.min(Math.max(r.left + r.width / 2 + window.scrollX, 90), document.documentElement.clientWidth - 90) + "px";
+        tip.style.top = top + "px";
+      };
+      g.addEventListener("mouseenter", show);
+      g.addEventListener("focus", show);
+      g.addEventListener("touchstart", show, { passive: true });
+      g.addEventListener("mouseleave", () => { tip.hidden = true; g.querySelectorAll(".bar").forEach((b) => b.classList.remove("hover")); });
+    });
+  }
+
+  // ---------- shared pieces ----------
+  const tile = (label, value, sub, cls = "") => `<div class="tile ${cls}"><span class="label">${esc(label)}</span><span class="value">${value}</span>${sub ? `<span class="sub">${sub}</span>` : ""}</div>`;
+  function table(cols, rows, { empty = "Nothing to show.", rowAttr } = {}) {
+    if (!rows.length) return `<p class="muted">${esc(empty)}</p>`;
+    const head = cols.map((c) => `<th${c.num ? ' class="num"' : ""}>${esc(c.label)}</th>`).join("");
+    const body = rows.map((r) => `<tr${rowAttr ? rowAttr(r) : ""}>` + cols.map((c) => `<td${c.num ? ' class="num"' : ""}>${c.html ? c.html(r) : esc(c.get ? c.get(r) : r[c.key])}</td>`).join("") + "</tr>").join("");
+    return `<div class="scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+  }
+  const section = (title, count, body, open) => `<details class="sec"${open ? " open" : ""}><summary><h3>${esc(title)}</h3><span class="count">${count}</span></summary><div class="body">${body}</div></details>`;
+  const storeCell = (r) => `${esc(r.storeName || r.name || "")} <span class="mono muted">${esc(r.store || r.id || "")}</span>`;
+  const byStore = (rows) => (S.store ? rows.filter((r) => (r.store || r.id) === S.store) : rows);
+
+  function storeTable(rows, { month } = {}) {
+    const key = S.sort.key, dir = S.sort.dir;
+    const sorted = [...rows].sort((a, b) => (key === "name" ? a.name.localeCompare(b.name) * -dir : ((a[key] || 0) - (b[key] || 0)) * dir) || (b.sales - a.sales));
+    const max = Math.max(1, ...rows.map((r) => r.sales || 0));
+    const th = (k, label, num = true) => `<th${num ? ' class="num"' : ""}><button type="button" data-sort="${k}" data-active="${S.sort.key === k}">${esc(label)}${S.sort.key === k ? (dir < 0 ? " ↓" : " ↑") : ""}</button></th>`;
+    const body = sorted.map((r) => {
+      const quiet = !r.sales && !r.posts;
+      const tags = [r.known === false ? '<span class="tag bad">Not in Zoho store list</span>' : "", r.inMaster === false ? '<span class="tag">Not in store master</span>' : "",
+        r.lost ? `<span class="tag bad">${int(r.lost)} not saved</span>` : "", quiet ? '<span class="tag">No sales</span>' : ""].join(" ");
+      return `<tr class="pickable${quiet ? " quiet" : ""}" data-store="${esc(r.id)}" title="Show only ${esc(r.name)}">
+        <td>${esc(r.name)} <span class="mono muted">${esc(r.id)}</span>${r.emirate ? ` <span class="muted">· ${esc(r.emirate)}</span>` : ""} ${tags}</td>
+        <td class="num"><div class="inbar"><span class="track"><span class="fill" style="width:${((r.sales || 0) / max) * 100}%"></span></span>${int(r.sales)}</div></td>
+        <td class="num">${aed(Math.round(r.aed || 0))}</td>
+        <td class="num">${aed(Math.round(r.discount || 0))}</td>
+        <td class="num">${int(r.earned)}</td>
+        <td class="num">${int(r.burned)}</td>
+        <td class="num">${int(r.redemptions)}</td>
+        <td class="num">${int(r.refunds)}</td>
+        ${month ? `<td class="num">${int(r.days)}</td>` : `<td class="num">${int(r.customers)}</td>`}
+      </tr>`;
+    }).join("");
+    return `<div class="scroll"><table><thead><tr>${th("name", "Restaurant", false)}${th("sales", "Sales")}${th("aed", "Invoiced")}${th("discount", "Discount")}${th("earned", "Pts earned")}${th("burned", "Pts burned")}${th("redemptions", "Redemptions")}${th("refunds", "Refunds")}${month ? th("days", "Days trading") : th("customers", "Customers")}</tr></thead><tbody>${body}</tbody></table></div>`;
+  }
+
+  // ---------- day view ----------
+  function dayView() {
+    const sum = byDate().get(S.date);
+    if (!sum) return emptyState();
+    const det = S.details.get(S.date);
+    if (det === undefined) detailFor(S.date);
+    const k = sum.kpis || {};
+    const st = S.store ? (sum.stores || []).find((r) => r.id === S.store) : null;
+    const fc = sum.flagCounts || {};
+    const status = sum.status || "ok";
+
+    let h = `<section class="banner ${status}">
+      ${chip(status, SEV_LABEL[status], true)}
+      <h2>${esc(sum.headline || "No issues found")}</h2>
+      <div class="meta"><span>${esc(dayLabel(sum.date))}</span><span>${int(fc.critical || 0)} critical · ${int(fc.warning || 0)} warning · ${int(fc.info || 0)} info</span>
+      <span>Built ${esc(ago(sum.generatedAt))}</span>${sum.mode === "history" ? "<span>Transactions only</span>" : ""}</div>
+    </section>`;
+    if (sum.mode === "history") h += `<p class="note">This day was rebuilt from saved transactions. Zoho deletes till and NCR logs after 3 days, so lost sales, refunds, log errors and app orders can't be checked for it.</p>`;
+    if (S.store) h += `<p class="note">Showing <b>${esc(st ? st.name : S.store)}</b> in the tiles and lists. Flags, sign-ups, expiry and app figures are for all restaurants. <button type="button" class="tag" data-store="">Show all restaurants</button></p>`;
+
+    const src = st || { sales: k.sales, aed: k.salesAed, discount: k.discountAed, paid: k.paidAed, earned: k.pointsEarned, burned: k.pointsBurned, redemptions: k.redemptions, lost: k.lostSales, lostPoints: k.lostPoints, customers: k.customers };
+    const avg = src.sales ? (src.aed || 0) / src.sales : 0;
+    h += `<section class="kpis" aria-label="Key figures">
+      ${tile("Sales", int(src.sales), `${esc(aed(Math.round(src.aed || 0)))} invoiced · avg ${esc(aed(Math.round(avg)))}`)}
+      ${tile("Paid by customers", esc(aed(Math.round(src.paid ?? (src.aed - src.discount) ?? 0))), `${esc(aed(Math.round(src.discount || 0)))} discount`)}
+      ${tile("Points earned", compact(src.earned), `${compact(src.burned)} burned`)}
+      ${tile("Redemptions", int(src.redemptions), k.pointsNotBurned && !st ? `${int(k.pointsNotBurned)} burned too little` : "sales with points or discount", k.pointsNotBurned && !st ? "caution" : "")}
+      ${tile("Sales not saved", sum.mode === "history" ? "–" : int(src.lost), sum.mode === "history" ? "needs till logs" : src.lostPoints ? `${int(src.lostPoints)} pts redeemed on them` : "till posts with no transaction", src.lost ? "alert" : "")}
+      ${tile("Sign-ups", int(k.signups), `${plural(k.referrals || 0, "referral bonus", "referral bonuses")}`)}
+      ${tile("Points expired", compact(k.expiredPoints), `${plural(k.expiredCustomers || 0, "customer")}`)}
+      ${tile("App orders", k.appOrders === null || k.appOrders === undefined || sum.mode === "history" ? "–" : int(k.appOrders), k.appOrderIssues ? `${plural(k.appOrderIssues, "issue")}` : sum.mode === "history" ? "not kept" : esc(aed(k.appOrdersAed || 0)), k.appOrderIssues ? "caution" : "")}
+    </section>`;
+
+    // Flags
+    const flags = det && det.flags ? det.flags : (sum.topFlags || []);
+    const shown = S.sev === "all" ? flags : flags.filter((f) => f.severity === S.sev);
+    const fbtn = (v, label, n) => `<button type="button" data-sev="${v}" aria-pressed="${S.sev === v}">${esc(label)}${n !== undefined ? ` ${int(n)}` : ""}</button>`;
+    h += `<section class="panel" aria-label="Flags"><div class="panel-head"><h3>Flags</h3><div class="filters">${fbtn("all", "All", flags.length)}${fbtn("critical", "Critical", fc.critical || 0)}${fbtn("warning", "Warning", fc.warning || 0)}${fbtn("info", "Info", fc.info || 0)}</div></div>
+      ${shown.length ? `<ul class="flags">${shown.map((f) => `<li>${chip(f.severity)}<span class="t">${esc(f.title)}</span>${f.detail ? `<span class="d">${esc(f.detail)}</span>` : ""}</li>`).join("")}</ul>` : `<p class="muted">${flags.length ? "No flags at this level." : "No flags for this day."}</p>`}
+      ${!det && det !== false ? '<p class="muted">Loading details…</p>' : ""}
+    </section>`;
+
+    // Restaurants + hourly
+    const hourly = det && det.hourly ? det.hourly : null;
+    const hourChart = hourly ? columns(hourly.map((v, i) => ({ v, tick: String(i).padStart(2, "0"), tip: `${String(i).padStart(2, "0")}:00–${String(i).padStart(2, "0")}:59 · ${plural(v, "sale")}` })), { tickEvery: 3 }) : '<p class="muted">Loading…</p>';
+    h += `<div class="split">
+      <section class="panel"><div class="panel-head"><h3>Restaurants</h3><span class="muted">Click a row to filter</span></div>${storeTable(sum.stores || [])}</section>
+      <section class="panel"><div class="panel-head"><h3>Sales by hour</h3><span class="muted">All restaurants</span></div>${hourChart}</section>
+    </div>`;
+
+    if (det) h += daySections(det, sum);
+    else if (det === false) h += `<p class="note">The detail for this day isn't in the database. Only the summary above is available.</p>`;
+    return h;
+  }
+
+  function daySections(det, sum) {
+    const s = det.sections || {};
+    const hist = sum.mode === "history";
+    let h = "";
+    const lost = byStore(s.lostSales || []);
+    if (!hist) h += section("Sales not saved", plural(lost.length, "sale"), `<p class="msg">Till sale posts with no transaction in Zoho. The customer got their receipt, but no points were earned or burned.</p>` +
+      table([{ label: "Time", key: "at" }, { label: "Restaurant", html: storeCell }, { label: "Order", html: (r) => `<span class="mono">${esc(r.order)}</span>` }, { label: "Customer", get: (r) => r.customer || r.phone }, { label: "Points", key: "points", num: true }, { label: "AED", key: "aed", num: true }, { label: "Why", key: "reasonText" }], lost, { empty: "Every till sale was saved." }) +
+      (s.notMembers && s.notMembers.count ? `<p class="muted">${plural(s.notMembers.count, "post")} from phone numbers that aren't members were ignored, as expected.</p>` : ""), lost.length > 0);
+
+    const pnb = byStore(s.pointsNotBurned || []), free = byStore(s.freeDiscounts || []);
+    h += section("Points not burned", plural(pnb.length + free.length, "sale"), (hist ? "" :
+      `<p class="msg">Redemptions where Zoho burned fewer points than the till asked for.</p>` +
+      table([{ label: "Time", key: "at" }, { label: "Restaurant", html: storeCell }, { label: "Customer", key: "customer" }, { label: "Asked", key: "requested", num: true }, { label: "Burned", key: "burned", num: true }, { label: "Discount AED", key: "discount", num: true }, { label: "Order", html: (r) => `<span class="mono">${esc(r.order)}</span>` }], pnb, { empty: "Every redemption burned what the till asked." })) +
+      `<p class="msg">Sales with a discount and no points burned${hist ? " (free-drink rewards can't be ruled out without till logs)" : ""}.</p>` +
+      table([{ label: "Time", key: "at" }, { label: "Restaurant", html: storeCell }, { label: "Customer", key: "customer" }, { label: "Discount AED", key: "discount", num: true }, { label: "Worth pts", key: "pointsWorth", num: true }, { label: "Till", key: "tillSaid" }], free, { empty: "None." }), pnb.length + free.length > 0);
+
+    if (!hist) {
+      const ap = byStore(s.approvalsNoSale || []);
+      h += section("Approved, no sale posted", plural(ap.length, "approval"), `<p class="msg">The till checked a redemption but never sent the sale. Usually an abandoned order; sometimes a lost sale.</p>` +
+        table([{ label: "Time", key: "at" }, { label: "Restaurant", html: storeCell }, { label: "Customer", get: (r) => r.customer || r.phone }, { label: "Points", key: "points", num: true }, { label: "AED", key: "aed", num: true }, { label: "Order", html: (r) => `<span class="mono">${esc(r.order)}</span>` }], ap, { empty: "None." }), false);
+      const rf = byStore(s.refunds || []);
+      const statusText = { "ignored-no-phone": "Ignored: no phone number", recorded: "Recorded", "not-recorded": "Not recorded" };
+      h += section("Refunds from the till", plural(rf.length, "refund"), table([{ label: "Time", key: "at" }, { label: "Restaurant", html: storeCell }, { label: "Code sent", html: (r) => `<span class="mono">${esc(r.sentCode)}</span>` }, { label: "Order", html: (r) => `<span class="mono">${esc(r.order)}</span>` }, { label: "Result", html: (r) => r.status === "recorded" ? esc(statusText[r.status]) : `<span class="tag bad">${esc(statusText[r.status] || r.status)}</span>` }], rf, { empty: "No refunds." }), rf.some((r) => r.status !== "recorded"));
+      if ((s.storeCodes || []).length) h += section("Store codes the store list doesn't have", plural(s.storeCodes.length, "code"), table([{ label: "Code sent", html: (r) => `<span class="mono">${esc(r.code)}</span>` }, { label: "Calls", key: "posts", num: true }, { label: "Problem", get: (r) => r.kind === "short" ? `Short form of ${r.correct}` : "Not in the store list" }], s.storeCodes), true);
+    }
+
+    const ex = s.expiry || {};
+    const bl = ex.backlog;
+    h += section("Points expiry", `${compact(ex.points || 0)} points expired`, `<dl class="kv">
+        <div><dt>Expired today</dt><dd>${int(ex.points || 0)} pts</dd></div><div><dt>Customers</dt><dd>${int(ex.customers || 0)}</dd></div>
+        <div><dt>Rows</dt><dd>${int(ex.rows || 0)}</dd></div>
+        ${Object.entries(ex.byType || {}).map(([t, n]) => `<div><dt>${esc(t)} bonuses</dt><dd>${int(n)}</dd></div>`).join("")}
+        ${bl ? `<div><dt>Still overdue</dt><dd>${plural(bl.customers, "customer")} · ${int(bl.points)} pts</dd></div><div><dt>Orphan rows</dt><dd>${int(bl.orphanRows)} · ${int(bl.orphanPoints)} pts</dd></div>` : ""}
+      </dl>` +
+      (bl ? `<p class="muted">Overdue checked ${esc(ago(bl.asOf))}. Orphan rows belong to no customer, so nobody can spend them.</p>` : "") +
+      table([{ label: "Time", key: "at" }, { label: "Job", key: "title" }, { label: "Due", key: "due", num: true }, { label: "Done", key: "processed", num: true }, { label: "Failed", key: "failed", num: true }, { label: "Log", html: (r) => `<span class="msg">${esc(r.message)}</span>` }], ex.jobs || [], { empty: hist ? "Job logs aren't kept this far back." : "No expiry job logged anything today." }) +
+      (bl && bl.top && bl.top.length ? `<h3>Customers still holding expired points</h3>` + table([{ label: "Customer", key: "name" }, { label: "Points", key: "points", num: true }, { label: "Rows", key: "rows", num: true }, { label: "Oldest expiry", key: "oldest" }], bl.top) : ""),
+      !!(bl && bl.customers));
+
+    const rf = s.referrals || {};
+    h += section("Referrals", plural(rf.count || 0, "bonus", "bonuses"), `<p class="msg">Each referral bonus goes to the referrer. The new account is matched by sign-up time.</p>` +
+      table([{ label: "Referrer", key: "name" }, { label: "Today", key: "today", num: true }, { label: "7 days", key: "last7", num: true }, { label: "30 days", key: "last30", num: true }, { label: "Most in 1 hour", key: "maxInOneHour", num: true }], rf.referrers || [], { empty: "No referral bonuses today." }) +
+      table([{ label: "Time", key: "at" }, { label: "Referrer", key: "referrer" }, { label: "New account", key: "referee" }, { label: "Phone", key: "refereePhone" }, { label: "Points", key: "points", num: true }, { label: "Looks like", html: (r) => (r.signs || []).map((x) => `<span class="tag bad">${esc(x)}</span>`).join(" ") }], rf.pairs || [], { empty: "" }) +
+      ((rf.refereesSpent || []).length ? `<h3>New accounts that spent points the same day</h3>` + table([{ label: "Time", key: "at" }, { label: "Customer", key: "customer" }, { label: "Restaurant", key: "store" }, { label: "Burned", key: "burned", num: true }], rf.refereesSpent) : ""),
+      (rf.referrers || []).some((r) => r.today >= 3 || r.last30 >= 10) || (rf.pairs || []).some((p) => (p.signs || []).length));
+
+    const su = s.signups || {};
+    h += section("Sign-ups", plural(su.count || 0, "new member"), `<dl class="kv"><div><dt>New members</dt><dd>${int(su.count || 0)}</dd></div><div><dt>Referred</dt><dd>${int(su.referred || 0)}</dd></div><div><dt>Failed attempts</dt><dd>${hist ? "–" : int(su.failed || 0)}</dd></div></dl>` +
+      (su.hourly ? columns(su.hourly.map((v, i) => ({ v, tick: String(i).padStart(2, "0"), tip: `${String(i).padStart(2, "0")}:00 · ${plural(v, "sign-up")}` })), { height: 120, tickEvery: 3 }) : "") +
+      table([{ label: "Time", key: "at" }, { label: "Name", key: "name" }, { label: "Phone", key: "phone" }, { label: "Referred by", key: "referredBy" }], su.list || [], { empty: "No sign-ups." }), false);
+
+    if (!hist) {
+      const nc = s.ncr || {};
+      h += section("NCR logs", plural(nc.count || 0, "entry", "entries"), (nc.tierJob ? `<p class="muted">Tier validation job: ${nc.tierJob.rows ? `${nc.tierJob.capped ? "over " : ""}${int(nc.tierJob.rows)} rows from ${esc(nc.tierJob.first)}` : "no rows today"} (left out below).</p>` : "") +
+        ((nc.groups || []).map((g) => `<h3>${esc(g.label)} · ${int(g.count)}</h3>` + table([{ label: "Count", key: "count", num: true }, { label: "Title", key: "title" }, { label: "Message", html: (m) => `<span class="msg">${esc(m.sample)}</span>` }, { label: "First", key: "first" }, { label: "Last", key: "last" }], g.messages || [])).join("") || '<p class="muted">No log entries.</p>'),
+        (nc.groups || []).some((g) => g.key === "engine" || g.key === "crm"));
+
+      const ao = s.appOrders || {};
+      const issue = (o) => o.type === "Failed Order" || (o.payment === "done" && !o.posId) || (o.posMessage && !/placed successfully/i.test(o.posMessage));
+      h += section("App orders", plural((ao.orders || []).length, "order"), `<dl class="kv"><div><dt>Orders placed</dt><dd>${int((ao.orders || []).length)}</dd></div><div><dt>Needing a look</dt><dd>${int(ao.issues || 0)}</dd></div><div><dt>Open carts created</dt><dd>${ao.carts === null || ao.carts === undefined ? "–" : int(ao.carts)}</dd></div><div><dt>Points redeemed</dt><dd>${int(ao.points || 0)}</dd></div></dl>` +
+        table([{ label: "Customer", key: "customer" }, { label: "Status", key: "status" }, { label: "Payment", key: "payment" }, { label: "Method", key: "method" }, { label: "Total AED", key: "total", num: true }, { label: "Points", key: "points", num: true }, { label: "POS order", html: (o) => o.posId ? `<span class="mono">${esc(o.posId)}</span>` : '<span class="tag bad">none</span>' }, { label: "POS message", html: (o) => issue(o) ? `<span class="tag bad">${esc(o.posMessage || "no message")}</span>` : esc(o.posMessage) }], ao.orders || [], { empty: "No app orders." }), (ao.issues || 0) > 0);
+
+      const api = s.appApi || {};
+      h += section("App usage", `${int(api.total || 0)} API calls`, table([{ label: "Screen or action", key: "label" }, { label: "API type", key: "type", num: true }, { label: "Calls", key: "count", num: true }], api.byType || [], { empty: "Not available." }), false);
+
+      const till = s.till || {};
+      h += section("Till traffic", `${int(sum.kpis.tillCalls || 0)} calls`, `<dl class="kv">${Object.entries(till.byType || {}).map(([t, n]) => `<div><dt>${esc({ "type 1": "Balance lookups", "type 3": "Sale posts", "type 4": "Refunds", "type 5": "Redemption checks" }[t] || t)}</dt><dd>${int(n)}</dd></div>`).join("")}
+        <div><dt>Krispy Kreme calls (separate engine)</dt><dd>${int(sum.kpis.kkCalls || 0)}</dd></div></dl>` +
+        (till.hourly ? columns(till.hourly.map((v, i) => ({ v, tick: String(i).padStart(2, "0"), tip: `${String(i).padStart(2, "0")}:00 · ${plural(v, "till call")}` })), { height: 120, tickEvery: 3 }) : ""), false);
+    }
+
+    const srcs = Object.entries(sum.sources || {});
+    h += section("Data sources", `${srcs.filter(([, v]) => v.available).length} of ${srcs.length} loaded`, table([{ label: "Source", get: (r) => r[0] }, { label: "Rows", html: (r) => r[1].available ? int(r[1].count) : "–", num: true }, { label: "State", get: (r) => !r[1].available ? "Not loaded" : r[1].complete ? "Complete" : "Hit page cap" }], srcs) +
+      (det.truncated ? `<p class="muted">Long lists were shortened to fit: ${esc(Object.entries(det.truncated).map(([k, n]) => `${k} (${n} more)`).join(", "))}.</p>` : ""), false);
+    return h;
+  }
+
+  // ---------- month view ----------
+  const ADD = ["sales", "salesAed", "discountAed", "paidAed", "pointsEarned", "pointsBurned", "redemptions", "signups", "referrals", "birthdays", "expiredPoints", "expiredCustomers", "lostSales", "lostPoints", "appOrders", "refundPosts", "pointsNotBurned", "approvalsNoSale"];
+  function monthView() {
+    const days = S.summaries.filter((s) => s.date.startsWith(S.month || "")).sort((a, b) => (a.date < b.date ? -1 : 1));
+    if (!days.length) return emptyState();
+    const tot = Object.fromEntries(ADD.map((k) => [k, days.reduce((a, s) => a + ((s.kpis || {})[k] || 0), 0)]));
+    const status = countStatus(days);
+    const stores = new Map();
+    for (const s of days) for (const r of s.stores || []) {
+      const e = stores.get(r.id) || { id: r.id, name: r.name, emirate: r.emirate, known: r.known, inMaster: r.inMaster, sales: 0, aed: 0, discount: 0, paid: 0, earned: 0, burned: 0, redemptions: 0, refunds: 0, lost: 0, posts: 0, days: 0 };
+      for (const k of ["sales", "aed", "discount", "paid", "earned", "burned", "redemptions", "refunds", "lost", "posts"]) e[k] += r[k] || 0;
+      if (r.sales) e.days++;
+      e.known = r.known; e.inMaster = r.inMaster; e.emirate = r.emirate || e.emirate;
+      stores.set(r.id, e);
+    }
+    const st = S.store ? stores.get(S.store) : null;
+    const src = st || { sales: tot.sales, aed: tot.salesAed, discount: tot.discountAed, paid: tot.paidAed, earned: tot.pointsEarned, burned: tot.pointsBurned, redemptions: tot.redemptions, lost: tot.lostSales };
+
+    let h = `<section class="banner ${status.critical ? "critical" : status.warning ? "warning" : "ok"}">
+      ${chip(status.critical ? "critical" : status.warning ? "warning" : "ok", `${int(status.critical)} critical ${status.critical === 1 ? "day" : "days"}`, true)}
+      <h2>${esc(monthLabel(S.month))}</h2>
+      <div class="meta"><span>${plural(days.length, "day")} reported</span><span>${int(status.warning)} with warnings · ${int(status.ok)} clean</span><span>${int(days.filter((d) => d.mode === "history").length)} rebuilt from transactions only</span></div>
+    </section>`;
+    if (S.store) h += `<p class="note">Showing <b>${esc(st ? st.name : S.store)}</b> in the tiles and the chart. <button type="button" class="tag" data-store="">Show all restaurants</button></p>`;
+    h += `<section class="kpis" aria-label="Month totals">
+      ${tile("Sales", compact(src.sales), `${esc(aed(Math.round(src.aed || 0)))} invoiced`)}
+      ${tile("Paid by customers", esc("AED " + compact(Math.round(src.paid || 0))), `${esc(aed(Math.round(src.discount || 0)))} discount`)}
+      ${tile("Points earned", compact(src.earned), `${compact(src.burned)} burned`)}
+      ${tile("Redemptions", compact(src.redemptions), !st && tot.pointsNotBurned ? `${int(tot.pointsNotBurned)} burned too little` : "")}
+      ${tile("Sales not saved", int(src.lost), !st && tot.lostPoints ? `${int(tot.lostPoints)} pts redeemed on them` : "full-report days only", src.lost ? "alert" : "")}
+      ${tile("Sign-ups", compact(tot.signups), plural(tot.referrals, "referral bonus", "referral bonuses"))}
+      ${tile("Points expired", compact(tot.expiredPoints), "")}
+      ${tile("App orders", int(tot.appOrders), "full-report days only")}
+    </section>`;
+
+    const [y, m] = S.month.split("-").map(Number);
+    const nDays = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const map = new Map(days.map((d) => [d.date, d]));
+    const items = [];
+    for (let d = 1; d <= nDays; d++) {
+      const iso = `${S.month}-${String(d).padStart(2, "0")}`;
+      const s = map.get(iso);
+      const row = s && st ? (s.stores || []).find((r) => r.id === S.store) : null;
+      const v = s ? (st ? (row ? row.sales : 0) : s.kpis.sales) : 0;
+      const lost = s ? (st ? (row ? row.lost : 0) : s.kpis.lostSales) : 0;
+      items.push({ v, tick: String(d), key: s ? iso : "", dim: !s, mark: lost > 0,
+        tip: s ? `${shortDay(iso)} · ${plural(v, "sale")} · ${aed(Math.round(st ? (row ? row.aed : 0) : s.kpis.salesAed))}${lost ? ` · ${int(lost)} not saved` : ""} · ${SEV_LABEL[s.status]}` : `${shortDay(iso)} · no report` });
+    }
+    h += `<section class="panel"><div class="panel-head"><h3>Sales per day</h3><div class="legend-inline"><span><svg width="10" height="10" aria-hidden="true" style="vertical-align:-1px;margin-right:5px"><circle cx="5" cy="5" r="4" fill="var(--critical)"/></svg>Day with sales not saved</span><span class="muted">Click a day to open it</span></div></div>${columns(items, { height: 190, tickEvery: nDays > 20 ? 2 : 1, clickable: true })}</section>`;
+
+    // Calendar
+    const first = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+    let cal = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => `<span class="dow">${d}</span>`).join("") + "<span></span>".repeat(first);
+    for (let d = 1; d <= nDays; d++) {
+      const iso = `${S.month}-${String(d).padStart(2, "0")}`;
+      const s = map.get(iso);
+      cal += s ? `<button type="button" class="${s.status}" data-day="${iso}" title="${esc(s.headline)}"><span class="dn">${d}</span>${ICON[s.status] || ICON.ok}<span class="ds">${int(s.kpis.sales)} sales</span></button>` : `<button type="button" disabled><span class="dn">${d}</span><span class="ds">–</span></button>`;
+    }
+    h += `<div class="split"><section class="panel"><div class="panel-head"><h3>Restaurants this month</h3><span class="muted">Click a row to filter</span></div>${storeTable([...stores.values()], { month: true })}</section>
+      <section class="panel"><div class="panel-head"><h3>Day by day</h3><div class="legend-inline"><span>${ICON.critical} Critical</span><span>${ICON.warning} Warning</span><span>${ICON.ok} No issues</span></div></div><div class="cal">${cal}</div></section></div>`;
+
+    h += `<section class="panel"><div class="panel-head"><h3>Flags by day</h3><span class="muted">Click a row to open the day</span></div>` +
+      table([{ label: "Day", get: (s) => shortDay(s.date) }, { label: "Status", html: (s) => chip(s.status) }, { label: "Top flag", get: (s) => s.headline }, { label: "Critical", get: (s) => s.flagCounts.critical, num: true }, { label: "Warning", get: (s) => s.flagCounts.warning, num: true }, { label: "Sales", get: (s) => int(s.kpis.sales), num: true }, { label: "Not saved", get: (s) => s.mode === "history" ? "–" : int(s.kpis.lostSales), num: true }],
+        [...days].reverse(), { rowAttr: (s) => ` class="pickable" data-day="${esc(s.date)}"` }) + `</section>`;
+    return h;
+  }
+  function countStatus(days) {
+    const c = { critical: 0, warning: 0, ok: 0 };
+    for (const d of days) c[d.status] = (c[d.status] || 0) + 1;
+    return c;
+  }
+
+  function emptyState() {
+    if (S.dbState === "loading") return `<div class="empty"><h2>Loading reports</h2><p>Reading the report database.</p></div>`;
+    if (S.dbState === "none") return `<div class="empty"><h2>The report database isn't available here</h2><p>Open this page on claude.ai while signed in to see the daily reports.</p></div>`;
+    if (S.dbState === "error") return `<div class="empty"><h2>Couldn't read the reports</h2><p>The report database stopped answering. Reload the page to try again.</p></div>`;
+    return `<div class="empty"><h2>No reports yet</h2><p>The first report appears after the 6:00 AM India-time run. Each morning a scheduled Claude task reads the previous day from Zoho Creator, read-only, and adds it here.</p></div>`;
+  }
+
+  function render() {
+    syncControls();
+    app.innerHTML = S.summaries.length ? (S.view === "month" ? monthView() : dayView()) : emptyState();
+    wireTips(app);
+    const want = S.view === "month" ? (S.month || "") : (S.date || "");
+    if (want && location.hash.slice(1) !== want) { try { history.replaceState(null, "", "#" + want); } catch (e) { /* ignore */ } }
+  }
+
+  render();
+  boot();
+})();
+</script>

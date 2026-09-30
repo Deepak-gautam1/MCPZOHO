@@ -22,6 +22,7 @@ configuration is environment-variable driven — no credentials live in the sour
 | `zoho_creator_list_reports` | Lists the reports/views in an app (display names → link names). |
 | `zoho_creator_list_fields` | Lists a form's fields — link name, type, mandatory, lookup. Call before writing records. |
 | `zoho_creator_get_records` | Reads records from a report, with `criteria` filtering, field selection and paging. |
+| `zoho_creator_get_all_records` | Pages through every matching record and returns an exact count. `saveAs` writes the records to a file in `ZOHO_EXPORT_DIR` (default `<system temp>/zoho-mcp-exports`) and returns only the count and path, for reads a script will process. |
 | `zoho_creator_add_record` | Creates a record by submitting a form. |
 | `zoho_creator_update_record` | Updates named fields on one record, by record id. |
 | `zoho_creator_delete_record` | Permanently deletes one record, by record id. |

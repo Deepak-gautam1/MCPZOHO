@@ -15,6 +15,7 @@
  *   ZOHO_APP_LINK_NAME    - Default app link name when a call omits appLinkName
  *   ZOHO_ACCOUNTS_DOMAIN  - Default https://accounts.zoho.com  (data-centre specific)
  *   ZOHO_API_DOMAIN       - Default https://creator.zoho.com   (data-centre specific)
+ *   ZOHO_CUSTOM_API_DOMAIN - Default https://www.zohoapis.com  (host that serves Custom APIs)
  */
 
 import nodeFetch from "node-fetch";
@@ -30,6 +31,9 @@ const DEFAULT_TOKEN_TTL_SECONDS = 3600;
 
 const DEFAULT_ACCOUNTS_DOMAIN = "https://accounts.zoho.com";
 const DEFAULT_API_DOMAIN = "https://creator.zoho.com";
+// Custom APIs are not served under /api/v2.1 on creator.zoho.com; Zoho publishes them at
+// https://www.zohoapis.com/creator/custom/{owner}/{apiLinkName} (scope ZohoCreator.customapi.EXECUTE).
+const DEFAULT_CUSTOM_API_DOMAIN = "https://www.zohoapis.com";
 
 // ---------------------------------------------------------------------------
 // Config helpers
@@ -43,18 +47,27 @@ function requireEnv(name, hint) {
   const value = process.env[name];
   if (!value || !String(value).trim()) {
     throw new Error(
-      `Missing required environment variable ${name}.` + (hint ? ` ${hint}` : "")
+      `Missing required environment variable ${name}.` +
+        (hint ? ` ${hint}` : ""),
     );
   }
   return String(value).trim();
 }
 
 function accountsDomain() {
-  return stripTrailingSlash(process.env.ZOHO_ACCOUNTS_DOMAIN || DEFAULT_ACCOUNTS_DOMAIN);
+  return stripTrailingSlash(
+    process.env.ZOHO_ACCOUNTS_DOMAIN || DEFAULT_ACCOUNTS_DOMAIN,
+  );
 }
 
 function apiDomain() {
   return stripTrailingSlash(process.env.ZOHO_API_DOMAIN || DEFAULT_API_DOMAIN);
+}
+
+function customApiDomain() {
+  return stripTrailingSlash(
+    process.env.ZOHO_CUSTOM_API_DOMAIN || DEFAULT_CUSTOM_API_DOMAIN,
+  );
 }
 
 /**
@@ -66,12 +79,13 @@ export function resolveAppLinkName(appLinkName) {
   if (explicit) return explicit;
 
   const fallback =
-    process.env.ZOHO_APP_LINK_NAME && String(process.env.ZOHO_APP_LINK_NAME).trim();
+    process.env.ZOHO_APP_LINK_NAME &&
+    String(process.env.ZOHO_APP_LINK_NAME).trim();
   if (fallback) return fallback;
 
   throw new Error(
     "No Zoho Creator app link name available. Pass appLinkName with the request, " +
-      "or set the ZOHO_APP_LINK_NAME environment variable as a default."
+      "or set the ZOHO_APP_LINK_NAME environment variable as a default.",
   );
 }
 
@@ -79,14 +93,15 @@ export function resolveAppLinkName(appLinkName) {
 function creatorBasePath(appLinkName) {
   const owner = requireEnv(
     "ZOHO_ACCOUNT_OWNER",
-    "It is the account-owner segment of your Creator app URL."
+    "It is the account-owner segment of your Creator app URL.",
   );
   const app = resolveAppLinkName(appLinkName);
   return `/api/v2.1/${encodeURIComponent(owner)}/${encodeURIComponent(app)}`;
 }
 
 function requireArg(value, name) {
-  const trimmed = value === undefined || value === null ? "" : String(value).trim();
+  const trimmed =
+    value === undefined || value === null ? "" : String(value).trim();
   if (!trimmed) throw new Error(`${name} is required.`);
   return trimmed;
 }
@@ -110,11 +125,11 @@ async function requestNewAccessToken() {
   const params = new URLSearchParams({
     refresh_token: requireEnv(
       "ZOHO_REFRESH_TOKEN",
-      "Generate it by exchanging a Self Client grant token (see README)."
+      "Generate it by exchanging a Self Client grant token (see README).",
     ),
     client_id: requireEnv(
       "ZOHO_CLIENT_ID",
-      "Create a Self Client at https://api-console.zoho.com."
+      "Create a Self Client at https://api-console.zoho.com.",
     ),
     client_secret: requireEnv("ZOHO_CLIENT_SECRET"),
     grant_type: "refresh_token",
@@ -133,7 +148,9 @@ async function requestNewAccessToken() {
       body: params.toString(),
     });
   } catch (err) {
-    throw new Error(`Could not reach the Zoho token endpoint (${tokenUrl}): ${err.message}`);
+    throw new Error(
+      `Could not reach the Zoho token endpoint (${tokenUrl}): ${err.message}`,
+    );
   }
 
   const rawBody = await response.text();
@@ -143,26 +160,29 @@ async function requestNewAccessToken() {
   } catch {
     throw new Error(
       `Zoho token endpoint returned a non-JSON response (HTTP ${response.status}): ` +
-        rawBody.slice(0, 500)
+        rawBody.slice(0, 500),
     );
   }
 
   // Zoho answers OAuth failures with HTTP 200 and an "error" field, so check both.
   if (!response.ok || payload.error) {
-    const reason = payload.error || `HTTP ${response.status} ${response.statusText}`;
+    const reason =
+      payload.error || `HTTP ${response.status} ${response.statusText}`;
     throw new Error(
       `Zoho token refresh failed: ${reason}. ` +
         "Check ZOHO_CLIENT_ID / ZOHO_CLIENT_SECRET / ZOHO_REFRESH_TOKEN, and confirm " +
-        "ZOHO_ACCOUNTS_DOMAIN matches the data centre the credentials were issued in."
+        "ZOHO_ACCOUNTS_DOMAIN matches the data centre the credentials were issued in.",
     );
   }
 
   if (!payload.access_token) {
-    throw new Error(`Zoho token refresh returned no access_token: ${rawBody.slice(0, 500)}`);
+    throw new Error(
+      `Zoho token refresh returned no access_token: ${rawBody.slice(0, 500)}`,
+    );
   }
 
   const ttlSeconds = Number(
-    payload.expires_in_sec ?? payload.expires_in ?? DEFAULT_TOKEN_TTL_SECONDS
+    payload.expires_in_sec ?? payload.expires_in ?? DEFAULT_TOKEN_TTL_SECONDS,
   );
   // expires_in is sometimes delivered in milliseconds; normalise to seconds.
   const normalisedTtl = ttlSeconds > 100_000 ? ttlSeconds / 1000 : ttlSeconds;
@@ -205,13 +225,14 @@ export async function getAccessToken() {
  * @param {unknown} [options.body]   JSON request body
  * @param {object} [options.headers] Extra headers
  * @param {boolean} [options.withHeaders] Resolve to { payload, headers } instead of payload
+ * @param {string} [options.domain]  Host to call instead of ZOHO_API_DOMAIN
  * @returns {Promise<unknown>} Parsed JSON body (or raw text when not JSON)
  */
 export async function zohoRequest(
   path,
-  { method = "GET", query, body, headers, withHeaders = false } = {}
+  { method = "GET", query, body, headers, withHeaders = false, domain } = {},
 ) {
-  const url = new URL(`${apiDomain()}${path}`);
+  const url = new URL(`${domain ?? apiDomain()}${path}`);
   if (query) {
     for (const [key, value] of Object.entries(query)) {
       if (value === undefined || value === null || value === "") continue;
@@ -244,7 +265,9 @@ export async function zohoRequest(
       response = await send(await getAccessToken());
     }
   } catch (err) {
-    throw new Error(`Zoho request ${method} ${url.pathname} failed: ${err.message}`);
+    throw new Error(
+      `Zoho request ${method} ${url.pathname} failed: ${err.message}`,
+    );
   }
 
   const rawBody = await response.text();
@@ -258,11 +281,16 @@ export async function zohoRequest(
   }
 
   if (!response.ok) {
-    const detail = typeof payload === "string" ? payload : JSON.stringify(payload);
-    throw new Error(
+    const detail =
+      typeof payload === "string" ? payload : JSON.stringify(payload);
+    const error = new Error(
       `Zoho API ${method} ${url.pathname} returned ${response.status} ${response.statusText}: ` +
-        String(detail).slice(0, 1500)
+        String(detail).slice(0, 1500),
     );
+    error.status = response.status;
+    error.zohoCode =
+      payload && typeof payload === "object" ? payload.code : undefined;
+    throw error;
   }
 
   return withHeaders ? { payload, headers: response.headers } : payload;
@@ -289,7 +317,7 @@ export async function zohoRequest(
 export async function listApplications() {
   const owner = requireEnv(
     "ZOHO_ACCOUNT_OWNER",
-    "It is the account-owner segment of your Creator app URL."
+    "It is the account-owner segment of your Creator app URL.",
   );
   return zohoRequest(`/api/v2.1/${encodeURIComponent(owner)}/applications`);
 }
@@ -325,7 +353,7 @@ export async function listReports({ appLinkName } = {}) {
 export async function listFields({ appLinkName, formLinkName } = {}) {
   const form = requireArg(formLinkName, "formLinkName");
   return zohoRequest(
-    `${creatorBasePath(appLinkName)}/form/${encodeURIComponent(form)}/fields`
+    `${creatorBasePath(appLinkName)}/form/${encodeURIComponent(form)}/fields`,
   );
 }
 
@@ -375,7 +403,7 @@ export async function getRecords({
     if (!ALLOWED_MAX_RECORDS.includes(limit)) {
       throw new Error(
         `maxRecords must be one of ${ALLOWED_MAX_RECORDS.join(", ")} - Zoho rejects ` +
-          `any other value (received ${maxRecords}).`
+          `any other value (received ${maxRecords}).`,
       );
     }
     query.max_records = limit;
@@ -386,7 +414,7 @@ export async function getRecords({
 
   const { payload, headers: responseHeaders } = await zohoRequest(
     `${creatorBasePath(appLinkName)}/report/${encodeURIComponent(report)}`,
-    { method: "GET", query, headers, withHeaders: true }
+    { method: "GET", query, headers, withHeaders: true },
   );
 
   const nextCursor = responseHeaders.get("record_cursor");
@@ -403,6 +431,10 @@ export async function getRecords({
  * limit (Zoho reports remaining quota in the x-rate-limit response header).
  * The result reports whether it stopped because the data ran out or the cap hit.
  *
+ * Creator answers a criteria that matches nothing with HTTP 400 and code 9280
+ * instead of an empty page. For a read-everything call that is a complete,
+ * empty result, so it comes back as zero records rather than an error.
+ *
  * @param {object} opts  As getRecords, plus:
  * @param {number} [opts.maxPages]  Page cap, default 50 (= 50k rows at 1000/page)
  * @returns {Promise<{records: object[], pages: number, complete: boolean}>}
@@ -413,7 +445,19 @@ export async function getAllRecords({ maxPages = 50, ...opts } = {}) {
   let pages = 0;
 
   do {
-    const page = await getRecords({ ...opts, maxRecords: opts.maxRecords ?? 1000, recordCursor: cursor });
+    let page;
+    try {
+      page = await getRecords({
+        ...opts,
+        maxRecords: opts.maxRecords ?? 1000,
+        recordCursor: cursor,
+      });
+    } catch (err) {
+      if (pages === 0 && err.zohoCode === 9280) {
+        return { records, pages: 1, complete: true };
+      }
+      throw err;
+    }
     const rows = Array.isArray(page.data) ? page.data : [];
     records.push(...rows);
     cursor = page.record_cursor;
@@ -435,29 +479,41 @@ export async function getAllRecords({ maxPages = 50, ...opts } = {}) {
 export async function addRecord({ appLinkName, formLinkName, data } = {}) {
   const form = requireArg(formLinkName, "formLinkName");
   if (!data || typeof data !== "object") {
-    throw new Error("data is required and must be an object of fieldLinkName -> value.");
+    throw new Error(
+      "data is required and must be an object of fieldLinkName -> value.",
+    );
   }
 
-  return zohoRequest(`${creatorBasePath(appLinkName)}/form/${encodeURIComponent(form)}`, {
-    method: "POST",
-    body: { data },
-  });
+  return zohoRequest(
+    `${creatorBasePath(appLinkName)}/form/${encodeURIComponent(form)}`,
+    {
+      method: "POST",
+      body: { data },
+    },
+  );
 }
 
 /**
  * Update a single record by id.
  * PATCH /api/v2.1/{owner}/{app}/report/{reportLinkName}/{recordId}
  */
-export async function updateRecord({ appLinkName, reportLinkName, recordId, data } = {}) {
+export async function updateRecord({
+  appLinkName,
+  reportLinkName,
+  recordId,
+  data,
+} = {}) {
   const report = requireArg(reportLinkName, "reportLinkName");
   const id = requireArg(recordId, "recordId");
   if (!data || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("data is required and must be an object of fieldLinkName -> value.");
+    throw new Error(
+      "data is required and must be an object of fieldLinkName -> value.",
+    );
   }
 
   return zohoRequest(
     `${creatorBasePath(appLinkName)}/report/${encodeURIComponent(report)}/${encodeURIComponent(id)}`,
-    { method: "PATCH", body: { data } }
+    { method: "PATCH", body: { data } },
   );
 }
 
@@ -465,22 +521,27 @@ export async function updateRecord({ appLinkName, reportLinkName, recordId, data
  * Delete a single record by id.
  * DELETE /api/v2.1/{owner}/{app}/report/{reportLinkName}/{recordId}
  */
-export async function deleteRecord({ appLinkName, reportLinkName, recordId } = {}) {
+export async function deleteRecord({
+  appLinkName,
+  reportLinkName,
+  recordId,
+} = {}) {
   const report = requireArg(reportLinkName, "reportLinkName");
   const id = requireArg(recordId, "recordId");
 
   return zohoRequest(
     `${creatorBasePath(appLinkName)}/report/${encodeURIComponent(report)}/${encodeURIComponent(id)}`,
-    { method: "DELETE" }
+    { method: "DELETE" },
   );
 }
 
 /**
  * Invoke a standalone Deluge function published as a Custom API.
- * GET or POST /api/v2.1/{owner}/{app}/custom/{apiLinkName}
+ * GET or POST {ZOHO_CUSTOM_API_DOMAIN}/creator/custom/{owner}/{apiLinkName}
+ * Needs the OAuth scope ZohoCreator.customapi.EXECUTE on the refresh token.
  *
  * @param {object} opts
- * @param {string} [opts.appLinkName]
+ * @param {string} [opts.appLinkName]   Unused: Custom APIs are account-level, not app-level
  * @param {string} opts.apiLinkName     Link name given to the Custom API
  * @param {"GET"|"POST"} [opts.method]  Must match the method the API was published with
  * @param {object} [opts.params]        Query-string arguments (usable by both methods)
@@ -497,15 +558,27 @@ export async function callCustomFunction({
   const httpMethod = String(method).toUpperCase();
 
   if (httpMethod !== "GET" && httpMethod !== "POST") {
-    throw new Error(`callCustomFunction supports GET or POST, received "${method}".`);
+    throw new Error(
+      `callCustomFunction supports GET or POST, received "${method}".`,
+    );
   }
   if (httpMethod === "GET" && body !== undefined) {
-    throw new Error("body cannot be sent with a GET custom-function call; use params instead.");
+    throw new Error(
+      "body cannot be sent with a GET custom-function call; use params instead.",
+    );
   }
 
-  return zohoRequest(`${creatorBasePath(appLinkName)}/custom/${encodeURIComponent(api)}`, {
-    method: httpMethod,
-    query: params,
-    body: httpMethod === "POST" ? (body ?? {}) : undefined,
-  });
+  const owner = requireEnv(
+    "ZOHO_ACCOUNT_OWNER",
+    "It is the account-owner segment of your Creator app URL.",
+  );
+  return zohoRequest(
+    `/creator/custom/${encodeURIComponent(owner)}/${encodeURIComponent(api)}`,
+    {
+      method: httpMethod,
+      query: params,
+      body: httpMethod === "POST" ? (body ?? {}) : undefined,
+      domain: customApiDomain(),
+    },
+  );
 }
