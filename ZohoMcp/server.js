@@ -27,6 +27,10 @@
  * Configuration is entirely environment-driven; see .env.example and README.md.
  */
 
+import { mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -77,6 +81,11 @@ const appLinkNameSchema = z
     "Zoho Creator application link name. Optional - falls back to the ZOHO_APP_LINK_NAME " +
       "environment variable. Only pass this when targeting a different app than the default."
   );
+
+/** Where zoho_creator_get_all_records writes saveAs files. Read at call time, like the rest of the config. */
+function exportDir() {
+  return process.env.ZOHO_EXPORT_DIR || join(tmpdir(), "zoho-mcp-exports");
+}
 
 function jsonResult(payload) {
   return {
@@ -248,7 +257,9 @@ server.registerTool(
       "at most 1000 rows, and Creator has no offset paging, so a partial read silently looks " +
       "like a complete one. Narrow with criteria and fields first: every page is a separate " +
       "API call against a rate limit. The result reports complete:false if the page cap was " +
-      "reached before the data ran out, meaning the count is a floor, not a total.",
+      "reached before the data ran out, meaning the count is a floor, not a total. A criteria " +
+      "that matches nothing returns count 0. For a large read that a script will process, pass " +
+      "saveAs to write the records to a file instead of returning them.",
     inputSchema: {
       appLinkName: appLinkNameSchema,
       reportLinkName: z.string().describe("Link name of the report to read from."),
@@ -267,9 +278,19 @@ server.registerTool(
         .max(200)
         .optional()
         .describe("Safety cap on pages fetched at 1000 rows each. Default 50 (50,000 rows)."),
+      saveAs: z
+        .string()
+        .regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,150}\.json$/)
+        .optional()
+        .describe(
+          "File name (letters, digits, . _ -, ending in .json) to write the full result to, in " +
+            "the export folder (ZOHO_EXPORT_DIR, default <system temp>/zoho-mcp-exports). The " +
+            "tool then returns the count and the file path instead of the records. An existing " +
+            "file with that name is replaced."
+        ),
     },
   },
-  safeHandler(async ({ appLinkName, reportLinkName, criteria, fields, maxPages }) => {
+  safeHandler(async ({ appLinkName, reportLinkName, criteria, fields, maxPages, saveAs }) => {
     const { records, pages, complete } = await getAllRecords({
       appLinkName,
       reportLinkName,
@@ -277,7 +298,15 @@ server.registerTool(
       fields,
       maxPages,
     });
-    return { count: records.length, pages, complete, records };
+    const result = { count: records.length, pages, complete, records };
+    if (!saveAs) return result;
+
+    const dir = exportDir();
+    mkdirSync(dir, { recursive: true });
+    const savedTo = join(dir, saveAs);
+    const text = JSON.stringify(result);
+    writeFileSync(savedTo, text);
+    return { count: records.length, pages, complete, savedTo, bytes: Buffer.byteLength(text) };
   })
 );
 

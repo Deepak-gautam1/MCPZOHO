@@ -283,10 +283,14 @@ export async function zohoRequest(
   if (!response.ok) {
     const detail =
       typeof payload === "string" ? payload : JSON.stringify(payload);
-    throw new Error(
+    const error = new Error(
       `Zoho API ${method} ${url.pathname} returned ${response.status} ${response.statusText}: ` +
         String(detail).slice(0, 1500),
     );
+    error.status = response.status;
+    error.zohoCode =
+      payload && typeof payload === "object" ? payload.code : undefined;
+    throw error;
   }
 
   return withHeaders ? { payload, headers: response.headers } : payload;
@@ -427,6 +431,10 @@ export async function getRecords({
  * limit (Zoho reports remaining quota in the x-rate-limit response header).
  * The result reports whether it stopped because the data ran out or the cap hit.
  *
+ * Creator answers a criteria that matches nothing with HTTP 400 and code 9280
+ * instead of an empty page. For a read-everything call that is a complete,
+ * empty result, so it comes back as zero records rather than an error.
+ *
  * @param {object} opts  As getRecords, plus:
  * @param {number} [opts.maxPages]  Page cap, default 50 (= 50k rows at 1000/page)
  * @returns {Promise<{records: object[], pages: number, complete: boolean}>}
@@ -437,11 +445,19 @@ export async function getAllRecords({ maxPages = 50, ...opts } = {}) {
   let pages = 0;
 
   do {
-    const page = await getRecords({
-      ...opts,
-      maxRecords: opts.maxRecords ?? 1000,
-      recordCursor: cursor,
-    });
+    let page;
+    try {
+      page = await getRecords({
+        ...opts,
+        maxRecords: opts.maxRecords ?? 1000,
+        recordCursor: cursor,
+      });
+    } catch (err) {
+      if (pages === 0 && err.zohoCode === 9280) {
+        return { records, pages: 1, complete: true };
+      }
+      throw err;
+    }
     const rows = Array.isArray(page.data) ? page.data : [];
     records.push(...rows);
     cursor = page.record_cursor;
